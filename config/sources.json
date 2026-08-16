@@ -581,8 +581,8 @@
     "legislaturasconectadas.gob.ar"
   ],
   "timeout_seconds": 15,
-  "max_discovery_queries": 12,
+  "max_discovery_queries": 36,
   "max_workers": 6,
-  "max_per_job": 100,
+  "max_per_job": 200,
   "cors_origin": ""
 }
