@@ -132,9 +132,15 @@
       openReports: byId("open-reports"), latestReport: byId("latest-report"), reportPath: byId("report-path")
     };
 
-    // El plan de monitores se muestra junto a la automatización, antes de los suscriptores.
+    // Los rastreos guardados se muestran junto a la automatización.
     const automationCard = elements.runWatchers.closest("section");
     const watchCard = elements.watchForm.closest("section");
+    if (watchCard) {
+      const header = watchCard.querySelector(".section-head");
+      if (header) header.innerHTML = '<div><p class="kicker">RASTREOS GUARDADOS</p><h2>Consultas manuales</h2><p class="intro">Guardá una búsqueda desde el botón “Programar este rastreo”. Podés ejecutarla cuando quieras o dejarla activa para la automatización.</p></div><b class="counter" id="watch-count">0 activos</b>';
+      elements.watchCount = byId("watch-count");
+      elements.watchForm.remove();
+    }
     if (automationCard && watchCard) automationCard.after(watchCard);
 
     function normalizeBase(value) {
@@ -368,13 +374,20 @@
         const custom = item.custom_terms ? `: ${item.custom_terms}` : "";
         main.append(createText("small", `${provinces.join(", ")}${item.city ? ` · ${item.city}` : ""} · ${(item.topics || ["Política"]).join(", ")}${custom} · ${hours}`));
         const actions = document.createElement("span"); actions.className = "watch-actions";
+        const execute = createText("button", "Ejecutar", "tiny");
+        execute.type = "button"; execute.disabled = state.busy;
+        execute.addEventListener("click", async () => {
+          elements.query.value = item.query || "";
+          await runQuery();
+          document.querySelector(".query-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+        });
         const toggle = createText("button", item.enabled ? "Pausar" : "Activar", "tiny");
         toggle.type = "button"; toggle.disabled = state.busy;
         toggle.addEventListener("click", () => updateWatch(item.id, !item.enabled));
         const remove = createText("button", "Eliminar", "tiny danger");
         remove.type = "button"; remove.disabled = state.busy;
         remove.addEventListener("click", () => deleteWatch(item.id, item.label));
-        actions.append(toggle, remove);
+        actions.append(execute, toggle, remove);
         row.append(dot, main, actions);
         elements.watches.append(row);
       }
