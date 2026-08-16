@@ -62,11 +62,11 @@
     </section>
 
     <section class="card query-card">
-      <p class="kicker">BÚSQUEDA MANUAL</p><h2>Consulta puntual para administradores</h2>
-      <p class="intro">Sirve para ejecutar una búsqueda inmediata que no queda programada. AND exige ambos términos, OR acepta cualquiera y NOT excluye.</p>
-      <label class="sr-only" for="query">Consulta booleana</label>
-      <textarea id="query" rows="4" spellcheck="false" placeholder="Escribí una búsqueda puntual"></textarea>
-      <button class="secondary protected" id="run-query" type="button" disabled>Rastrear desde la PC</button>
+      <p class="kicker">BÚSQUEDA BOOLEANA · ADMINISTRADOR</p><h2>Armá y ejecutá el pedido editorial</h2>
+      <p class="intro">Escribí los nombres o temas entre comillas. Usá <b>OR</b> para alternativas y <b>AND</b> para exigir coincidencias entre grupos. Después de ejecutarla podés programarla como rastreo.</p>
+      <label for="query" style="display:block;font-size:12px;font-weight:800;color:#003A90;margin:0 0 6px">Consulta a rastrear</label>
+      <textarea id="query" rows="8" spellcheck="false" placeholder='Ejemplo: ("Lordén" OR "Salomon") AND ("Osaba" OR "Pareja")'></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="secondary" id="load-saladillo-query" type="button">Cargar ejemplo Saladillo · Provincia · Nación</button><button class="secondary protected" id="run-query" type="button" disabled>Rastrear ahora</button></div>
       <div class="result-list" id="results"></div>
     </section>
 
@@ -122,7 +122,7 @@
     const elements = {
       pcUrl: byId("pc-url"), token: byId("token"), connect: byId("connect"), status: byId("status"),
       signal: byId("signal"), lastCount: byId("last-count"), runWatchers: byId("run-watchers"),
-      runQuery: byId("run-query"), query: byId("query"), results: byId("results"),
+      runQuery: byId("run-query"), query: byId("query"), loadSaladilloQuery: byId("load-saladillo-query"), results: byId("results"),
       watchForm: byId("watch-form"), provincePicker: byId("province-picker"), provinceSummary: byId("province-summary"), watchCity: byId("watch-city"), watchOther: byId("watch-other"),
       topicPicker: byId("topic-picker"), topicSummary: byId("topic-summary"), hourPicker: byId("hour-picker"), hourSummary: byId("hour-summary"), watchCount: byId("watch-count"), watches: byId("watches"),
       recipientForm: byId("recipient-form"), email: byId("email"), recipientName: byId("recipient-name"),
@@ -671,6 +671,10 @@
     elements.connect.addEventListener("click", connect);
     elements.runWatchers.addEventListener("click", runWatchers);
     elements.runQuery.addEventListener("click", runQuery);
+    elements.loadSaladilloQuery.addEventListener("click", () => {
+      elements.query.value = '("Lordén" OR "Salomon" OR "Woevich" OR "Mengarielli" OR "Salguero" OR "Leo Bruno" OR "Nacho Bustingorri" OR "Calvella" OR "Lilli" OR "LLA" OR "PRO" OR "UCR" OR "PJ" OR "Intendente" OR "séptima sección electoral") AND ("Osaba" OR "Pareja" OR "Bullrich" OR "Abad" OR "Giuliano" OR "Karina Milei" OR "Macri" OR "Menem" OR "Santilli" OR "Kicillof" OR "IOMA" OR "Giles" OR "Kreplak") AND ("Presidenciales 2027" OR "Candidatos" OR "Galperin" OR "Hadad" OR "Gebbel" OR "Rebord" OR "Cámpora" OR "Máximo Kirchner" OR "Massa" OR "Intendentes conurbano" OR "AMBA")';
+      elements.query.focus();
+    });
     elements.openReports.addEventListener("click", openReports);
     byId("btn-ai-analyze").addEventListener("click", analyzeWithAI);
     elements.watchForm.addEventListener("submit", addWatch);
