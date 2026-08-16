@@ -180,6 +180,40 @@
     "senado-ba.gov.ar",
     "hcdiputados-ba.gov.ar"
   ],
+  "source_groups": [
+    {
+      "id": "catalogo-agencia-politica",
+      "name": "Catálogo OSINT · fuentes públicas",
+      "catalog_path": "config/AGENCIA_DE_NOTICIAS.md",
+      "enabled": true,
+      "max_domains_per_query": 12,
+      "exclude_domains": [
+        "bing.com",
+        "google.com",
+        "web.archive.org",
+        "whois.net",
+        "socialbearing.com",
+        "crowdtangle.com",
+        "brandwatch.com",
+        "legaldata.ar",
+        "facebook.com",
+        "instagram.com",
+        "twitter.com",
+        "x.com",
+        "tiktok.com",
+        "threads.net",
+        "bluesky.social",
+        "reddit.com",
+        "youtube.com",
+        "spotify.com",
+        "podcasts.apple.com",
+        "radios-online.com.ar",
+        "tunedin.com",
+        "radiolive.com.ar",
+        "radiofoco.com.ar"
+      ]
+    }
+  ],
   "feeds": [
     {
       "name": "UCR Buenos Aires",

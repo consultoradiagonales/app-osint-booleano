@@ -14,6 +14,7 @@ from typing import Any, Iterable
 from urllib.parse import quote_plus, urljoin, urlparse
 from urllib.request import Request, urlopen
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 from .models import Evidence
 
@@ -112,6 +113,51 @@ def fetch_bytes(url: str, timeout: float = 15.0) -> bytes:
         payload = response.read()
     _BYTES_CACHE[url] = (time.monotonic(), payload)
     return payload
+
+
+def _catalog_domains(group: dict[str, Any]) -> list[str]:
+    """Lee el catálogo público de fuentes sin convertir redes o buscadores en rastreo automático."""
+    configured = group.get("domains", [])
+    if isinstance(configured, list) and configured:
+        raw_domains = [str(value) for value in configured]
+    else:
+        catalog = str(group.get("catalog_path", "")).strip()
+        if not catalog:
+            return []
+        path = Path(catalog)
+        if not path.is_absolute():
+            path = Path(__file__).resolve().parent.parent / path
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            return []
+        raw_domains = [domain_of(match) for match in re.findall(r"https?://[^\s\]\)\>`\"']+", text)]
+
+    excluded = {
+        str(value).casefold().removeprefix("www.")
+        for value in group.get("exclude_domains", [])
+        if str(value).strip()
+    }
+    domains: list[str] = []
+    for value in raw_domains:
+        domain = domain_of(value) if "://" in value else value.casefold().removeprefix("www.").strip("/ ")
+        if not domain or domain in excluded or any(domain.endswith("." + item) for item in excluded):
+            continue
+        if domain not in domains:
+            domains.append(domain)
+    return domains
+
+
+def _source_group_queries(group: dict[str, Any], query: str) -> list[str]:
+    domains = _catalog_domains(group)
+    if not domains:
+        return []
+    batch_size = max(1, min(int(group.get("max_domains_per_query", 12)), 20))
+    result: list[str] = []
+    for start in range(0, len(domains), batch_size):
+        sites = " OR ".join(f"site:{domain}" for domain in domains[start:start + batch_size])
+        result.append(f"({query}) ({sites})")
+    return result
 
 
 @dataclass(frozen=True)
@@ -318,6 +364,17 @@ def build_jobs(config: dict[str, Any], queries: list[str]) -> list[FetchJob]:
                 f"{quote_plus(monitor['query'])}&hl={quote_plus(language)}&gl={quote_plus(country)}&ceid={quote_plus(edition)}"
             )
             jobs.append(FetchJob(monitor.get("name", "Fuente oficial"), url, monitor.get("id", "fuente-oficial")))
+    for group in config.get("source_groups", []):
+        if not group.get("enabled", True):
+            continue
+        group_id = str(group.get("id", "catalogo-fuentes")).strip() or "catalogo-fuentes"
+        group_name = str(group.get("name", "Catálogo de fuentes")).strip() or "Catálogo de fuentes"
+        for index, scoped_query in enumerate(_source_group_queries(group, " OR ".join(f"({query})" for query in queries)), 1):
+            url = (
+                "https://news.google.com/rss/search?q="
+                f"{quote_plus(scoped_query)}&hl={quote_plus(language)}&gl={quote_plus(country)}&ceid={quote_plus(edition)}"
+            )
+            jobs.append(FetchJob(group_name, url, f"{group_id}-{index}"))
     for page in config.get("agenda_pages", []):
         if page.get("enabled", True) and page.get("url"):
             jobs.append(FetchJob(page.get("name", domain_of(page["url"])), page["url"], "agenda-oficial", "agenda_html"))
