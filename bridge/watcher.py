@@ -128,8 +128,13 @@ def _execute_watchers_unlocked(
     for watch in watch_config.get("watches", []):
         if not watch.get("enabled", True):
             continue
-        if scheduled and datetime.now().hour not in {int(hour) for hour in watch.get("schedule_hours", [7, 15, 20])}:
-            continue
+        if scheduled:
+            now = datetime.now()
+            if now.hour not in {int(hour) for hour in watch.get("schedule_hours", [7, 15, 20])}:
+                continue
+            # Lunes=0, domingo=6. Los monitores anteriores conservan lunes a viernes.
+            if now.weekday() not in {int(day) for day in watch.get("schedule_days", [0, 1, 2, 3, 4])}:
+                continue
         result = run_pipeline(
             watch["query"],
             source_config,

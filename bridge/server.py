@@ -133,7 +133,13 @@ class BridgeApp:
             raise ValueError("Los horarios no son válidos")
         schedule_hours = sorted(set(int(hour) for hour in schedule_hours))
         if not 1 <= len(schedule_hours) <= 3 or any(hour < 0 or hour > 23 for hour in schedule_hours):
-            raise ValueError("El plan beta permite elegir entre uno y tres horarios")
+            raise ValueError("Elegí entre uno y tres horarios enteros")
+        schedule_days = payload.get("schedule_days", current.get("schedule_days", [0, 1, 2, 3, 4]))
+        if not isinstance(schedule_days, list):
+            raise ValueError("Los días de ejecución no son válidos")
+        schedule_days = sorted(set(int(day) for day in schedule_days))
+        if not schedule_days or any(day < 0 or day > 6 for day in schedule_days):
+            raise ValueError("Elegí al menos un día de ejecución válido")
         return {
             "id": identifier,
             "label": label,
@@ -147,6 +153,7 @@ class BridgeApp:
             "topics": topics,
             "custom_terms": custom_terms,
             "schedule_hours": schedule_hours,
+            "schedule_days": schedule_days,
         }
 
     def _save_watch_config(self, config: dict[str, Any]) -> None:
@@ -585,7 +592,7 @@ def make_handler(app: BridgeApp):
                 self._json(HTTPStatus.OK, {
                     "ok": True,
                     "running": app.watch_lock.locked(),
-                    "schedule_mode": "selectable_beta",
+                    "schedule_mode": "manual_saved",
                     "allowed_hours": list(range(24)),
                     "max_schedule_hours": 3,
                     "recent_runs": app.store.latest(5),
