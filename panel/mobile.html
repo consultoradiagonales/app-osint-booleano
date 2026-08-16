@@ -20,6 +20,7 @@
     @media(max-width:720px){.watch-form{grid-template-columns:1fr 1fr}.watch-form .watch-query{grid-column:1/-1}.watch-form .secondary{grid-column:1/-1}}
     @media(max-width:620px){.shell{width:min(100% - 16px,820px);padding-top:max(8px,env(safe-area-inset-top))}.topbar{grid-template-columns:auto 1fr}.signal{grid-column:1/-1;text-align:center}.hero{grid-template-columns:1fr;min-height:420px}.mention-chart{height:190px;justify-content:center}.hero>div:first-child{z-index:1}.metrics{gap:6px}.metric{padding:14px}.metric strong{font-size:21px}.action-card{grid-template-columns:1fr auto}.pulse-button{width:92px}.recipient-form,.watch-form{grid-template-columns:1fr}.recipient-form .secondary,.watch-form .secondary,.watch-form .watch-query{grid-column:auto;width:100%}.recipient,.watch-row{grid-template-columns:auto minmax(0,1fr)}.recipient-actions,.watch-actions{grid-column:2;flex-wrap:wrap}.card{border-radius:16px;padding:17px}}
     @media(prefers-reduced-motion:reduce){.sweep{animation:none}}
+    .high-alert.alert-critica{border-right-color:#C1432A;border-bottom-color:#C1432A}.high-alert.alert-alta{border-right-color:#D99A1B;border-bottom-color:#D99A1B}.high-alert.alert-seguimiento{border-right-color:#1F8A4C;border-bottom-color:#1F8A4C}.alert-pills{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.alert-pill{display:inline-block;border-radius:99px;padding:4px 7px;font:800 9px ui-monospace,Consolas,monospace;letter-spacing:.04em}.alert-pill.level{background:#C1432A;color:#fff}.alert-critica .alert-pill.level{background:#C1432A}.alert-alta .alert-pill.level{background:#D99A1B}.alert-seguimiento .alert-pill.level{background:#1F8A4C}.alert-pill.mentions{background:#fff;color:#31566c;border:1px solid currentColor}.alert-critica .alert-pill.mentions{color:#C1432A}.alert-alta .alert-pill.mentions{color:#8E6E0E}.alert-seguimiento .alert-pill.mentions{color:#1F8A4C}.alert-date{font-size:11px!important;color:#477086!important;margin:4px 0 7px!important}
   </style>
 </head>
 <body>
@@ -184,6 +185,23 @@
       return node;
     }
 
+    function alertPresentation(item) {
+      const score = Number(item.importance ?? item.relevance_score ?? 0);
+      if (score >= 85) return { className: "critica", label: "ALERTA CRÍTICA", score };
+      if (score >= 70) return { className: "alta", label: "ALERTA ALTA", score };
+      return { className: "seguimiento", label: "EN SEGUIMIENTO", score };
+    }
+
+    function alertDate(item) {
+      const raw = String(item.published_at || item.created_at || "").trim();
+      const label = item.published_at ? "Publicado" : "Detectado";
+      if (!raw) return "Fecha no informada";
+      const match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}:\d{2}))?/);
+      if (match) return `${label}: ${match[1].padStart(2,"0")}/${match[2].padStart(2,"0")}/${match[3]}${match[4] ? ` · ${match[4]}` : ""}`;
+      const date = new Date(raw);
+      return Number.isNaN(date.getTime()) ? `${label}: ${raw}` : `${label}: ${date.toLocaleDateString("es-AR")} · ${date.toLocaleTimeString("es-AR", {hour:"2-digit", minute:"2-digit"})}`;
+    }
+
     function renderResults() {
       elements.results.replaceChildren();
       if (!state.lastRun) return;
@@ -265,9 +283,15 @@
 
         const sorted = [...items].sort(sortFn);
         for (const item of sorted) {
-          const card = document.createElement("article"); card.className = "high-alert";
+          const presentation = alertPresentation(item);
+          const card = document.createElement("article"); card.className = `high-alert alert-${presentation.className}`;
           const mentionsBadge = `${item.mentions || 1} mención${(item.mentions || 1) === 1 ? "" : "es"}`;
-          card.append(createText("span", `${item.source || "Fuente pública"} · ${mentionsBadge}`, "tag"));
+          const pills = document.createElement("div"); pills.className = "alert-pills";
+          pills.append(createText("span", `${presentation.label} · ${presentation.score}/100`, "alert-pill level"));
+          pills.append(createText("span", mentionsBadge, "alert-pill mentions"));
+          card.append(pills);
+          card.append(createText("span", item.source || "Fuente pública", "tag"));
+          card.append(createText("p", alertDate(item), "alert-date"));
           card.append(createText("h3", item.title || "Sin título"));
           if (item.subtitle) card.append(createText("h4", item.subtitle));
           if (item.summary) card.append(createText("p", item.summary));
