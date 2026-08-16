@@ -16,6 +16,9 @@ NIVEL NACIONAL:
 └─ https://resultados.gob.ar (Resultados electorales)
 └─ https://www.senado.gob.ar/parlamentario/comisiones/?active=agenda 
 └─ https://www.hcdn.gob.ar/comisiones/agenda/ 
+└─ https://chequeado.com/tag/falso-en-las-redes/ (Verificación)
+└─ https://chequeado.com/chequeos/ (Chequeos)
+└─ https://chequeado.com/metodo/ (Metodología)
 
 PORTALES PROVINCIALES OFICIALES:
 ├─ BUENOS AIRES: https://www.gba.gob.ar
