@@ -35,6 +35,37 @@ PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 ALLOWED_TOPICS = {"Política", "Economía", "Educación", "Cultura", "Salud", "OTRO/S"}
 
 
+def _current_run_html(run: dict[str, Any]) -> str:
+    """Arma el correo desde la misma corrida que está viendo el usuario."""
+    cards: list[str] = []
+    for item in list(run.get("results", []))[:20]:
+        title = html.escape(str(item.get("title", "Sin título")))
+        source = html.escape(str(item.get("source", "Fuente pública")))
+        summary = html.escape(str(item.get("ai_summary") or item.get("subtitle") or item.get("summary") or "")[:240])
+        date = html.escape(str(item.get("published_at") or item.get("created_at") or "Fecha no informada"))
+        url = str(item.get("url", "")).strip()
+        link = f'<p style="margin:12px 0 0"><a href="{html.escape(url, quote=True)}" style="color:#009AFE;font-weight:800">Abrir nota →</a></p>' if url.startswith(("https://", "http://")) else ""
+        cards.append(
+            '<tr><td style="padding:0 0 14px"><div style="background:#f4fbff;border-left:4px solid #009AFE;padding:15px">'
+            f'<p style="margin:0 0 7px;color:#C1432A;font:800 10px Arial,sans-serif;letter-spacing:.7px">{source} · {date}</p>'
+            f'<h2 style="margin:0;color:#002B54;font:800 18px/1.3 Arial,sans-serif">{title}</h2>'
+            + (f'<p style="margin:9px 0 0;color:#31566C;font:15px/1.5 Arial,sans-serif">{summary}</p>' if summary else "")
+            + link + '</div></td></tr>'
+        )
+    generated = html.escape(str(run.get("completed_at") or ""))
+    return (
+        '<!doctype html><html lang="es"><body style="margin:0;background:#EAF4FA">'
+        '<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:20px 10px">'
+        '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:760px;background:#fff">'
+        '<tr><td style="padding:24px;background:linear-gradient(135deg,#D9F7FA,#A9E1EA);border-bottom:4px solid #62B8D6">'
+        '<p style="margin:0 0 8px;color:#003B6E;font:800 11px Arial,sans-serif;letter-spacing:1px">CONSULTORA DIAGONALES · AGENCIA DE NOTICIAS</p>'
+        '<h1 style="margin:0;color:#002B54;font:800 27px Arial,sans-serif">Resultados del rastreo</h1>'
+        f'<p style="margin:9px 0 0;color:#31566C;font:13px Arial,sans-serif">Actualizado {generated}</p>'
+        '</td></tr><tr><td style="padding:20px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0">'
+        + ''.join(cards) + '</table></td></tr></table></td></tr></table></body></html>'
+    )
+
+
 class BridgeApp:
     def __init__(self, config_path: str, aliases_path: str, database_path: str, watches_path: str | None = None, alerts_dir: str | None = None, reports_dir: str | None = None):
         self.config = load_json(config_path)
@@ -718,6 +749,39 @@ def make_handler(app: BridgeApp):
                     ok = bool(deliveries) and all(item["status"] == "sent" for item in deliveries)
                     if ok:
                         delivery_state.write_text(json.dumps({"signature": signature, "sent_at": datetime.now(timezone.utc).isoformat(), "recipients": recipients, "products": selected_products}, ensure_ascii=False), encoding="utf-8")
+                    self._json(HTTPStatus.OK if ok else HTTPStatus.BAD_GATEWAY, {"ok": ok, "deliveries": deliveries})
+                    return
+                if path == "/api/bridge/reports/send-current-run":
+                    run_id = str(payload.get("run_id", "")).strip()
+                    run = app.store.get(run_id) if run_id else None
+                    if not run:
+                        self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "No se encontró el rastreo seleccionado"})
+                        return
+                    if not run.get("results"):
+                        self._json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "El rastreo seleccionado no tiene notas para enviar"})
+                        return
+                    recipients = [item["email"] for item in app.recipients.list(enabled_only=True)]
+                    if not recipients:
+                        self._json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "No hay destinatarios activos"})
+                        return
+                    html_body = _current_run_html(run)
+                    signature = f"current-run:{run_id}:{hashlib.sha256(html_body.encode('utf-8')).hexdigest()}:{','.join(sorted(recipients))}"
+                    delivery_state = Path(app.reports_dir) / "current_run_delivery.json"
+                    try:
+                        previous = json.loads(delivery_state.read_text(encoding="utf-8"))
+                    except (OSError, ValueError, json.JSONDecodeError):
+                        previous = {}
+                    if previous.get("signature") == signature:
+                        self._json(HTTPStatus.CONFLICT, {"ok": False, "error": "Este rastreo ya fue enviado"})
+                        return
+                    from .notifier import send_email_alert
+                    subject = f"CONSULTORA DIAGONALES · RASTREO · {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+                    deliveries = send_email_alert(recipients, subject, "Resultados del rastreo de Consultora Diagonales.", html_body)
+                    for delivery in deliveries:
+                        app.recipients.log_delivery(delivery["email"], "current-run", subject, delivery["status"], delivery["error"])
+                    ok = bool(deliveries) and all(item["status"] == "sent" for item in deliveries)
+                    if ok:
+                        delivery_state.write_text(json.dumps({"signature": signature, "run_id": run_id, "sent_at": datetime.now(timezone.utc).isoformat()}, ensure_ascii=False), encoding="utf-8")
                     self._json(HTTPStatus.OK if ok else HTTPStatus.BAD_GATEWAY, {"ok": ok, "deliveries": deliveries})
                     return
                 if path == "/api/bridge/watches":

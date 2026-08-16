@@ -667,7 +667,8 @@
       elements.trackedMailStatus.textContent = "Enviando un único cable HTML…";
       elements.trackedMailStatus.className = "delivery-status";
       try {
-        const data = await request("/reports/send-mailing", { method: "POST", body: JSON.stringify({product:"general"}) });
+        if (!state.lastRun || !state.lastRun.run_id) throw new Error("Primero ejecutá el rastreo que querés enviar.");
+        const data = await request("/reports/send-current-run", { method: "POST", body: JSON.stringify({run_id: state.lastRun.run_id}) });
         if (!data.ok) throw new Error(data.error || "No se pudo enviar");
         const sent = (data.deliveries || []).filter(item => item.status === "sent").length;
         elements.trackedMailStatus.textContent = `✓ Cable HTML enviado una vez a ${sent} cliente${sent === 1 ? "" : "s"}.`;
