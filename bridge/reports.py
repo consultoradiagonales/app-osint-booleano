@@ -90,7 +90,10 @@ def _rss_xml(items: list[dict[str, Any]], generated_at: datetime, *, title: str,
     )
 
 
-def _mailing_html(items: list[dict[str, Any]], generated_at: str) -> str:
+def _mailing_html(
+    items: list[dict[str, Any]], generated_at: str, *, heading: str = "Cables relevantes",
+    intro: str = "Selección editorial de política, economía, salud pública y actividad legislativa.",
+) -> str:
     cards: list[str] = []
     for item in items:
         title = escape(str(item.get("title", "Sin título")))
@@ -116,9 +119,9 @@ def _mailing_html(items: list[dict[str, Any]], generated_at: str) -> str:
         '<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:24px 12px">'
         '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:760px;background:#FFFFFF">'
         '<tr><td style="background:#003A90;padding:24px;color:#FFFFFF"><div style="font:700 11px Arial,sans-serif;letter-spacing:1.4px">CONSULTORA DIAGONALES · AGENCIA DE NOTICIAS</div>'
-        '<h1 style="font:700 28px Arial,sans-serif;margin:9px 0 0">Cables relevantes</h1>'
+        f'<h1 style="font:700 28px Arial,sans-serif;margin:9px 0 0">{escape(heading)}</h1>'
         f'<p style="font:13px Arial,sans-serif;margin:8px 0 0;color:#B7E6FF">Actualizado {escape(generated_at)}</p></td></tr>'
-        '<tr><td style="padding:22px"><p style="font:15px Arial,sans-serif;line-height:1.5;color:#31566C;margin:0 0 18px">Selección editorial de política, economía, salud pública y actividad legislativa.</p>'
+        f'<tr><td style="padding:22px"><p style="font:15px Arial,sans-serif;line-height:1.5;color:#31566C;margin:0 0 18px">{escape(intro)}</p>'
         '<table role="presentation" width="100%" cellspacing="0" cellpadding="0">' + ''.join(cards) + '</table></td></tr>'
         '<tr><td style="padding:18px 22px;background:#041B2C;color:#D5E9F4;font:12px Arial,sans-serif">Consultora Diagonales · Fuentes públicas verificables</td></tr>'
         '</table></td></tr></table></body></html>'
@@ -430,6 +433,8 @@ document.querySelectorAll('.cables article').forEach(function(art, i) { art.data
     agenda_rss_path = folder / "agenda.xml"
     rss_xsl_path = folder / "rss.xsl"
     mailing_path = folder / "mailing.html"
+    political_view_path = folder / "feed-politico.html"
+    agenda_view_path = folder / "feed-agenda.html"
     payload = {
         "generated_at": generated_at,
         "mode": "landing",
@@ -463,6 +468,22 @@ document.querySelectorAll('.cables article').forEach(function(art, i) { art.data
         encoding="utf-8",
     )
     mailing_path.write_text(_mailing_html(current, generated_at), encoding="utf-8")
+    political_view_path.write_text(
+        _mailing_html(
+            editorial_items, generated_at,
+            heading="Cable político y económico",
+            intro="Selección editorial: política, economía, gestión pública y decisiones institucionales.",
+        ),
+        encoding="utf-8",
+    )
+    agenda_view_path.write_text(
+        _mailing_html(
+            agenda_items, generated_at,
+            heading="Agenda legislativa",
+            intro="Comisiones, sesiones y actividad parlamentaria. Separado del cable editorial.",
+        ),
+        encoding="utf-8",
+    )
     rss_xsl_path.write_text("""<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="html" encoding="UTF-8"/>
