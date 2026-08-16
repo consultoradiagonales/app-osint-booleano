@@ -135,9 +135,16 @@ def _rss_xml(items: list[dict[str, Any]], generated_at: datetime, *, title: str,
 
 def _mailing_html(
     items: list[dict[str, Any]], generated_at: str, *, heading: str = "Cables relevantes",
-    intro: str = "Selección editorial de política, economía, salud pública y actividad legislativa.",
+    intro: str = "Selección editorial de política, economía, salud pública y actividad legislativa.", product: str = "general",
 ) -> str:
     logo = _logo_data_uri()
+    web_actions = (
+        '<div class="web-actions" style="padding:18px 22px 0;background:#FFFFFF">'
+        '<button onclick="window.print()" style="border:0;border-radius:99px;padding:10px 16px;background:#003A90;color:#fff;font-weight:800;cursor:pointer;margin-right:8px">Imprimir</button>'
+        '<button id="send-active" onclick="sendToActive()" style="border:0;border-radius:99px;padding:10px 16px;background:#003A90;color:#fff;font-weight:800;cursor:pointer">Enviar por mail a activos</button>'
+        '<p id="delivery-result" style="font:12px Arial,sans-serif;color:#477086;min-height:16px;margin:10px 0 0"></p>'
+        '</div><script>async function sendToActive(){const b=document.getElementById("send-active"),r=document.getElementById("delivery-result");b.disabled=true;b.textContent="Enviando…";r.textContent="Enviando correo HTML a los clientes activos…";try{const q=await fetch("/api/bridge/reports/send-mailing",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({product:"' + escape(product, quote=True) + '"})}),d=await q.json();if(!d.ok)throw new Error(d.error||(d.deliveries||[]).map(x=>x.error).find(Boolean)||"No se pudo enviar");const n=(d.deliveries||[]).filter(x=>x.status==="sent").length;r.textContent="✓ Correo HTML enviado a "+n+" cliente"+(n===1?"":"s")+".";r.style.color="#1F8A4C"}catch(e){r.textContent="✗ "+e.message;r.style.color="#C1432A"}finally{b.disabled=false;b.textContent="Enviar por mail a activos"}}</script>'
+    )
     cards: list[str] = []
     for item in items:
         level, level_label, level_color, level_background = _alert_level(item)
@@ -175,8 +182,8 @@ def _mailing_html(
         + '<div style="font:700 11px Arial,sans-serif;letter-spacing:1.4px;color:#003B6E">CONSULTORA DIAGONALES · AGENCIA DE NOTICIAS</div>'
         f'<h1 style="font:700 28px Arial,sans-serif;margin:9px 0 0;color:#002B54">{escape(heading)}</h1>'
         f'<p style="font:13px Arial,sans-serif;margin:8px 0 0;color:#245B78">Actualizado {escape(generated_at)}</p></td></tr>'
-        f'<tr><td style="padding:22px"><p style="font:15px Arial,sans-serif;line-height:1.5;color:#31566C;margin:0 0 18px">{escape(intro)}</p>'
-        '<table role="presentation" width="100%" cellspacing="0" cellpadding="0">' + ''.join(cards) + '</table></td></tr>'
+        f'<tr><td>{web_actions}<div style="padding:22px"><p style="font:15px Arial,sans-serif;line-height:1.5;color:#31566C;margin:0 0 18px">{escape(intro)}</p>'
+        '<table role="presentation" width="100%" cellspacing="0" cellpadding="0">' + ''.join(cards) + '</table></div></td></tr>'
         '<tr><td style="padding:18px 22px;background:#041B2C;color:#D5E9F4;font:12px Arial,sans-serif">Consultora Diagonales · Fuentes públicas verificables</td></tr>'
         '</table></td></tr></table></body></html>'
     )
@@ -545,25 +552,22 @@ document.querySelectorAll('.cables article').forEach(function(art, i) { art.data
     )
     bulletin_rss_path.write_text(_rss_xml(bulletin_items, now, title="Consultora Diagonales · Boletín Oficial", description="Normativa, decretos, resoluciones, licitaciones y disposiciones oficiales.", landing_path="/reports/boletin.xml"), encoding="utf-8")
     geopolitics_rss_path.write_text(_rss_xml(geopolitics_items, now, title="Consultora Diagonales · Geopolítica", description="Política internacional, comercio exterior, organismos multilaterales y relaciones estratégicas.", landing_path="/reports/geopolitica.xml"), encoding="utf-8")
-    mailing_path.write_text(_mailing_html(current, generated_at), encoding="utf-8")
+    mailing_path.write_text(_mailing_html(current, generated_at, product="general"), encoding="utf-8")
     political_view_path.write_text(
         _mailing_html(
             editorial_items, generated_at,
             heading="Cable político y económico",
             intro="Selección editorial: política, economía, gestión pública y decisiones institucionales.",
+            product="politico",
         ),
         encoding="utf-8",
     )
     agenda_view_path.write_text(
-        _mailing_html(
-            agenda_items, generated_at,
-            heading="Agenda legislativa",
-            intro="Comisiones, sesiones y actividad parlamentaria. Separado del cable editorial.",
-        ),
+        _mailing_html(agenda_items, generated_at, heading="Agenda legislativa", intro="Comisiones, sesiones y actividad parlamentaria. Separado del cable editorial.", product="agenda"),
         encoding="utf-8",
     )
-    bulletin_view_path.write_text(_mailing_html(bulletin_items, generated_at, heading="Boletín Oficial", intro="Normativa, decretos, resoluciones, licitaciones y disposiciones oficiales."), encoding="utf-8")
-    geopolitics_view_path.write_text(_mailing_html(geopolitics_items, generated_at, heading="Geopolítica", intro="Política internacional y hechos externos con impacto estratégico, económico o institucional."), encoding="utf-8")
+    bulletin_view_path.write_text(_mailing_html(bulletin_items, generated_at, heading="Boletín Oficial", intro="Normativa, decretos, resoluciones, licitaciones y disposiciones oficiales.", product="boletin"), encoding="utf-8")
+    geopolitics_view_path.write_text(_mailing_html(geopolitics_items, generated_at, heading="Geopolítica", intro="Política internacional y hechos externos con impacto estratégico, económico o institucional.", product="geopolitica"), encoding="utf-8")
     rss_logo = _logo_data_uri() or _LOGO_HARDCODED
     rss_xsl_path.write_text(f"""<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">

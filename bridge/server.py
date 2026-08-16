@@ -629,6 +629,11 @@ def make_handler(app: BridgeApp):
                     self._json(HTTPStatus.OK, {"ok": True, "folder": str(folder.resolve())})
                     return
                 if path == "/api/bridge/reports/send-mailing":
+                    def read_delivery_html(file_path: Path) -> str:
+                        """Los controles de impresión/envío son solo para la vista web, no para el correo."""
+                        raw_html = file_path.read_text(encoding="utf-8")
+                        return re.sub(r'<div class="web-actions"[\\s\\S]*?</script>', '', raw_html, flags=re.IGNORECASE)
+
                     products = {
                         "general": ("mailing.html", "Cables relevantes"),
                         "politico": ("feed-politico.html", "Cable político y económico"),
@@ -669,12 +674,12 @@ def make_handler(app: BridgeApp):
                     # produce un contenido distinto y vuelve a habilitarlo.
                     if len(product_files) == 1:
                         _product, product_name, mailing_path = product_files[0]
-                        html_body = mailing_path.read_text(encoding="utf-8")
+                        html_body = read_delivery_html(mailing_path)
                     else:
                         sections = []
                         product_names = []
                         for _product, product_name, mailing_path in product_files:
-                            source_html = mailing_path.read_text(encoding="utf-8")
+                            source_html = read_delivery_html(mailing_path)
                             match = re.search(r"<body[^>]*>(.*)</body>", source_html, flags=re.IGNORECASE | re.DOTALL)
                             content = match.group(1) if match else source_html
                             sections.append(
