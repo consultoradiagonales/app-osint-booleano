@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import html
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -636,14 +637,26 @@ def make_handler(app: BridgeApp):
                         "boletin": ("feed-boletin.html", "Boletín Oficial"),
                         "geopolitica": ("feed-geopolitica.html", "Geopolítica"),
                     }
-                    product = str(payload.get("product", "general")).strip().casefold()
-                    if product not in products:
-                        raise ValueError("Producto de distribución no válido")
-                    filename, product_name = products[product]
-                    mailing_path = Path(app.reports_dir) / filename
-                    if not mailing_path.is_file():
-                        self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "No hay mailing generado aún"})
-                        return
+                    requested_products = payload.get("products")
+                    if not isinstance(requested_products, list):
+                        requested_products = [payload.get("product", "general")]
+                    selected_products = []
+                    for value in requested_products:
+                        product = str(value).strip().casefold()
+                        if product not in products:
+                            raise ValueError("Producto de distribución no válido")
+                        if product not in selected_products:
+                            selected_products.append(product)
+                    if not selected_products:
+                        raise ValueError("Elegí al menos un producto para enviar")
+                    product_files = []
+                    for product in selected_products:
+                        filename, product_name = products[product]
+                        mailing_path = Path(app.reports_dir) / filename
+                        if not mailing_path.is_file():
+                            self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": f"No hay reporte generado para {product_name}"})
+                            return
+                        product_files.append((product, product_name, mailing_path))
                     selected_ids = {int(value) for value in payload.get("recipient_ids", []) if str(value).isdigit()}
                     recipient_rows = app.recipients.list(enabled_only=True)
                     if selected_ids:
@@ -655,10 +668,35 @@ def make_handler(app: BridgeApp):
                     # Un mismo cable no se reenvía: evita duplicados y que el
                     # mailing termine clasificado como spam. Un nuevo rastreo
                     # produce un contenido distinto y vuelve a habilitarlo.
-                    html_body = mailing_path.read_text(encoding="utf-8")
+                    if len(product_files) == 1:
+                        _product, product_name, mailing_path = product_files[0]
+                        html_body = mailing_path.read_text(encoding="utf-8")
+                    else:
+                        sections = []
+                        product_names = []
+                        for _product, product_name, mailing_path in product_files:
+                            source_html = mailing_path.read_text(encoding="utf-8")
+                            match = re.search(r"<body[^>]*>(.*)</body>", source_html, flags=re.IGNORECASE | re.DOTALL)
+                            content = match.group(1) if match else source_html
+                            sections.append(
+                                '<tr><td style="padding:0 0 26px">'
+                                f'<div style="font:800 14px Arial,sans-serif;letter-spacing:.4px;color:#003A90;padding:0 0 9px">{html.escape(product_name)}</div>'
+                                f'{content}</td></tr>'
+                            )
+                            product_names.append(product_name)
+                        product_name = " · ".join(product_names)
+                        html_body = (
+                            '<!doctype html><html lang="es"><body style="margin:0;background:#EAF4FA">'
+                            '<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:24px 12px">'
+                            '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:760px"><tr><td style="background:#003A90;padding:22px;color:#fff;font:800 18px Arial,sans-serif">'
+                            'CONSULTORA DIAGONALES · CABLES SELECCIONADOS</td></tr><tr><td style="padding:22px;background:#fff">'
+                            '<table role="presentation" width="100%" cellspacing="0" cellpadding="0">'
+                            + ''.join(sections)
+                            + '</table></td></tr></table></td></tr></table></body></html>'
+                        )
                     normalized = re.sub(r"Actualizado [^<]+", "", html_body)
                     digest = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
-                    signature = f"{product}:{digest}:{','.join(sorted(recipients))}"
+                    signature = f"{','.join(selected_products)}:{digest}:{','.join(sorted(recipients))}"
                     delivery_state = Path(app.reports_dir) / "mailing_delivery.json"
                     try:
                         previous = json.loads(delivery_state.read_text(encoding="utf-8"))
@@ -675,7 +713,7 @@ def make_handler(app: BridgeApp):
                         app.recipients.log_delivery(delivery["email"], "mailing", subject, delivery["status"], delivery["error"])
                     ok = bool(deliveries) and all(item["status"] == "sent" for item in deliveries)
                     if ok:
-                        delivery_state.write_text(json.dumps({"signature": signature, "sent_at": datetime.now(timezone.utc).isoformat(), "recipients": recipients, "product": product}, ensure_ascii=False), encoding="utf-8")
+                        delivery_state.write_text(json.dumps({"signature": signature, "sent_at": datetime.now(timezone.utc).isoformat(), "recipients": recipients, "products": selected_products}, ensure_ascii=False), encoding="utf-8")
                     self._json(HTTPStatus.OK if ok else HTTPStatus.BAD_GATEWAY, {"ok": ok, "deliveries": deliveries})
                     return
                 if path == "/api/bridge/watches":

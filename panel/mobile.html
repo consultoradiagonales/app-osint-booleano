@@ -82,10 +82,11 @@
     </section>
 
     <section class="card">
-      <div class="section-head"><div><p class="kicker">ENVÍO SEGMENTADO</p><h2>Elegí el producto y los clientes</h2></div></div>
-      <label>Producto editorial<select id="delivery-product"><option value="politico">Cable político y económico</option><option value="agenda">Agenda legislativa</option><option value="boletin">Boletín Oficial</option><option value="geopolitica">Geopolítica</option><option value="general">Cable completo</option></select></label>
+      <div class="section-head"><div><p class="kicker">ENVÍO SEGMENTADO</p><h2>Elegí los productos y los clientes</h2></div></div>
+      <p class="intro" style="font-size:12px;margin:0 0 10px">Podés seleccionar varios productos: llegan reunidos en un único mensaje.</p>
+      <div class="picker-grid" id="delivery-products"><label><input type="checkbox" value="politico" checked> Cable político y económico</label><label><input type="checkbox" value="agenda"> Agenda legislativa</label><label><input type="checkbox" value="boletin"> Boletín Oficial</label><label><input type="checkbox" value="geopolitica"> Geopolítica</label><label><input type="checkbox" value="general"> Cable completo</label></div>
       <div class="recipients" id="delivery-recipients" style="margin-top:12px"></div>
-      <button class="pulse-button protected" id="send-product" type="button" disabled>ENVIAR PRODUCTO</button>
+      <button class="pulse-button protected" id="send-product" type="button" disabled>ENVIAR MENSAJE</button>
     </section>
 
     <section class="card">
@@ -120,7 +121,7 @@
       watchForm: byId("watch-form"), provincePicker: byId("province-picker"), provinceSummary: byId("province-summary"), watchCity: byId("watch-city"), watchOther: byId("watch-other"),
       topicPicker: byId("topic-picker"), topicSummary: byId("topic-summary"), hourPicker: byId("hour-picker"), hourSummary: byId("hour-summary"), watchCount: byId("watch-count"), watches: byId("watches"),
       recipientForm: byId("recipient-form"), email: byId("email"), recipientName: byId("recipient-name"),
-      recipientCount: byId("recipient-count"), recipients: byId("recipients"), deliveryProduct: byId("delivery-product"), deliveryRecipients: byId("delivery-recipients"), sendProduct: byId("send-product"),
+      recipientCount: byId("recipient-count"), recipients: byId("recipients"), deliveryProducts: byId("delivery-products"), deliveryRecipients: byId("delivery-recipients"), sendProduct: byId("send-product"),
       highAlerts: byId("high-alerts"), highAlertCount: byId("high-alert-count"), sortAlerts: byId("sort-alerts"), clearAlerts: byId("clear-alerts"),
       openReports: byId("open-reports"), latestReport: byId("latest-report"), reportPath: byId("report-path")
     };
@@ -617,10 +618,12 @@
     async function sendSelectedProduct() {
       const recipient_ids = [...elements.deliveryRecipients.querySelectorAll("input:checked")].map(input => Number(input.value));
       if (!recipient_ids.length) { setStatus("Elegí al menos un cliente.", "error"); return; }
+      const products = [...elements.deliveryProducts.querySelectorAll("input:checked")].map(input => input.value);
+      if (!products.length) { setStatus("Elegí al menos un producto.", "error"); return; }
       await withBusy(async () => {
-        const data = await request("/reports/send-mailing", { method: "POST", body: JSON.stringify({product: elements.deliveryProduct.value, recipient_ids}) });
+        const data = await request("/reports/send-mailing", { method: "POST", body: JSON.stringify({products, recipient_ids}) });
         if (!data.ok) throw new Error(data.error || "No se pudo enviar");
-        setStatus("Producto enviado a los clientes seleccionados.", "success");
+        setStatus("Mensaje enviado a los clientes seleccionados.", "success");
       });
     }
 
