@@ -38,7 +38,7 @@ POLITICAL_TERMS = (
 
 _MONTH_ES = {1:"enero",2:"febrero",3:"marzo",4:"abril",5:"mayo",6:"junio",7:"julio",8:"agosto",9:"septiembre",10:"octubre",11:"noviembre",12:"diciembre"}
 
-_LOGO_PACKAGE = Path(__file__).resolve().parent.parent / "panel" / "assets" / "consultora_diagonales_mail.jpg"
+_LOGO_PACKAGE = Path(__file__).resolve().parent.parent / "panel" / "assets" / "consultora_diagonales_logo.png"
 _LOGO_B64_CACHE: str | None = None
 
 
@@ -125,14 +125,14 @@ def _mailing_html(
             '</td></tr></table></td></tr>'
         )
     return (
-        '<!doctype html><html lang="es"><body style="margin:0;background:#EAF4FA">'
+        '<!doctype html><html lang="es"><body style="margin:0;background:#E6F3F6">'
         '<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:24px 12px">'
-        '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:760px;background:#FFFFFF">'
-        '<tr><td style="background:#003A90;padding:24px;color:#FFFFFF">'
-        + (f'<img src="{logo}" alt="Consultora Diagonales" width="220" style="display:block;max-width:220px;height:auto;margin:0 0 14px"/>' if logo else '')
-        + '<div style="font:700 11px Arial,sans-serif;letter-spacing:1.4px">CONSULTORA DIAGONALES · AGENCIA DE NOTICIAS</div>'
-        f'<h1 style="font:700 28px Arial,sans-serif;margin:9px 0 0">{escape(heading)}</h1>'
-        f'<p style="font:13px Arial,sans-serif;margin:8px 0 0;color:#B7E6FF">Actualizado {escape(generated_at)}</p></td></tr>'
+        '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:760px;background:#FFFFFF;border:1px solid #C8E6ED">'
+        '<tr><td style="background:linear-gradient(135deg,#D9F7FA 0%,#A9E1EA 52%,#EFFBFB 100%);padding:24px;color:#002B54;border-bottom:4px solid #62B8D6">'
+        + (f'<img src="{logo}" alt="Consultora Diagonales" width="250" style="display:block;max-width:250px;height:auto;margin:0 0 16px"/>' if logo else '')
+        + '<div style="font:700 11px Arial,sans-serif;letter-spacing:1.4px;color:#003B6E">CONSULTORA DIAGONALES · AGENCIA DE NOTICIAS</div>'
+        f'<h1 style="font:700 28px Arial,sans-serif;margin:9px 0 0;color:#002B54">{escape(heading)}</h1>'
+        f'<p style="font:13px Arial,sans-serif;margin:8px 0 0;color:#245B78">Actualizado {escape(generated_at)}</p></td></tr>'
         f'<tr><td style="padding:22px"><p style="font:15px Arial,sans-serif;line-height:1.5;color:#31566C;margin:0 0 18px">{escape(intro)}</p>'
         '<table role="presentation" width="100%" cellspacing="0" cellpadding="0">' + ''.join(cards) + '</table></td></tr>'
         '<tr><td style="padding:18px 22px;background:#041B2C;color:#D5E9F4;font:12px Arial,sans-serif">Consultora Diagonales · Fuentes públicas verificables</td></tr>'
@@ -512,7 +512,7 @@ document.querySelectorAll('.cables article').forEach(function(art, i) { art.data
 <xsl:output method="html" encoding="UTF-8"/>
 <xsl:template match="/">
 <html lang="es"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title><xsl:value-of select="rss/channel/title"/></title>
-<style>body{{margin:0;background:#eef7fc;color:#092743;font:16px system-ui,sans-serif}}main{{max-width:860px;margin:auto;background:#fff;min-height:100vh;padding:22px}}.brand{{padding:18px 0 16px;border-bottom:3px solid #009AFE;margin-bottom:18px}}.logo{{display:block;width:min(230px,75vw);height:auto;margin:0 0 12px}}h1{{color:#003A90;margin:4px 0}}.lead{{color:#477086}}.item{{border-left:4px solid #009AFE;border-bottom:1px solid #cde5f4;padding:17px 16px;margin:12px 0;background:#f8fcff}}.tag{{font-size:12px;font-weight:800;color:#0073bb;text-transform:uppercase}}.item a{{color:#003A90;font-weight:800;text-decoration:none;font-size:18px}}.desc{{white-space:pre-line;line-height:1.5;color:#31566c;margin:9px 0 0}}.date{{font-size:12px;color:#477086;margin-top:9px}}.note{{background:#e5f5ff;border-radius:8px;padding:12px;color:#31566c;font-size:13px}}@media(max-width:560px){{main{{padding:16px}}.item{{padding:14px}}.item a{{font-size:16px}}}}</style></head><body><main><div class="brand"><img class="logo" src="{rss_logo}" alt="Consultora Diagonales"/><p class="tag">CONSULTORA DIAGONALES · AGENCIA DE NOTICIAS</p><h1><xsl:value-of select="rss/channel/title"/></h1><p class="lead"><xsl:value-of select="rss/channel/description"/></p></div><p class="note">Feed RSS. Para recibirlo en un lector RSS, copiá esta dirección.</p><xsl:for-each select="rss/channel/item"><article class="item"><div class="tag"><xsl:value-of select="category"/></div><a><xsl:attribute name="href"><xsl:value-of select="link"/></xsl:attribute><xsl:value-of select="title"/></a><p class="desc"><xsl:value-of select="description"/></p><p class="date"><xsl:value-of select="pubDate"/></p></article></xsl:for-each></main></body></html>
+<style>body{{margin:0;background:#e6f3f6;color:#092743;font:16px system-ui,sans-serif}}main{{max-width:860px;margin:auto;background:#fff;min-height:100vh;padding:0 22px 22px;overflow:hidden}}.brand{{padding:22px;margin:0 -22px 18px;background:linear-gradient(135deg,#d9f7fa 0%,#a9e1ea 52%,#effbfb 100%);border-bottom:4px solid #62b8d6}}.logo{{display:block;width:min(250px,75vw);height:auto;margin:0 0 14px}}h1{{color:#002b54;margin:4px 0}}.lead{{color:#245b78}}.item{{border-left:4px solid #009afe;border-bottom:1px solid #cde5f4;padding:17px 16px;margin:12px 0;background:#f8fcff}}.tag{{font-size:12px;font-weight:800;color:#0073bb;text-transform:uppercase}}.item a{{color:#003a90;font-weight:800;text-decoration:none;font-size:18px}}.desc{{white-space:pre-line;line-height:1.5;color:#31566c;margin:9px 0 0}}.date{{font-size:12px;color:#477086;margin-top:9px}}.note{{background:#e5f5ff;border-radius:8px;padding:12px;color:#31566c;font-size:13px}}@media(max-width:560px){{main{{padding:0 16px 16px}}.brand{{margin:0 -16px 16px;padding:18px 16px}}.item{{padding:14px}}.item a{{font-size:16px}}}}</style></head><body><main><div class="brand"><img class="logo" src="{rss_logo}" alt="Consultora Diagonales"/><p class="tag">CONSULTORA DIAGONALES · AGENCIA DE NOTICIAS</p><h1><xsl:value-of select="rss/channel/title"/></h1><p class="lead"><xsl:value-of select="rss/channel/description"/></p></div><p class="note">Feed RSS. Para recibirlo en un lector RSS, copiá esta dirección.</p><xsl:for-each select="rss/channel/item"><article class="item"><div class="tag"><xsl:value-of select="category"/></div><a><xsl:attribute name="href"><xsl:value-of select="link"/></xsl:attribute><xsl:value-of select="title"/></a><p class="desc"><xsl:value-of select="description"/></p><p class="date"><xsl:value-of select="pubDate"/></p></article></xsl:for-each></main></body></html>
 </xsl:template></xsl:stylesheet>""", encoding="utf-8")
 
     # ── RESUMEN TEMÁTICO (resumen_YYYYMMDD_HHMM.html) ────────────────────
