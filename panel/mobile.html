@@ -236,6 +236,8 @@
           <button class="btn-cancel-schedule" type="button">Cancelar</button>
         </div><p class="status schedule-status" role="status" aria-live="polite"></p>`;
       btnSched.addEventListener("click", () => { form.classList.toggle("open"); });
+      const scheduleLabelInput = form.querySelector(".sched-label");
+      scheduleLabelInput.addEventListener("input", () => { form.dataset.savedLabel = scheduleLabelInput.value; });
       form.querySelector(".btn-cancel-schedule").addEventListener("click", () => { form.classList.remove("open"); });
       form.querySelector(".btn-save-schedule").addEventListener("click", () => scheduleQuery(form));
       bar.append(btnSched, form);
@@ -458,7 +460,7 @@
         if (target) { target.textContent = message; target.className = `status schedule-status ${kind}`.trim(); }
         setStatus(message, kind);
       };
-      const label = form.querySelector(".sched-label").value.trim();
+      const label = (form.querySelector(".sched-label").value || form.dataset.savedLabel || "").trim();
       if (!label) { feedback("Escribí un nombre para el rastreo.", "error"); return; }
       const hours = [...form.querySelectorAll(".sched-hour")].map(i => i.value === "" ? null : Number(i.value)).filter(Number.isInteger);
       if (!hours.length || hours.length > 3) { feedback("Elegí entre 1 y 3 horarios.", "error"); return; }
