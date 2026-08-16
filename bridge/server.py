@@ -38,7 +38,8 @@ ALLOWED_TOPICS = {"Política", "Economía", "Educación", "Cultura", "Salud", "O
 def _current_run_html(run: dict[str, Any]) -> str:
     """Arma el correo desde la misma corrida que está viendo el usuario."""
     cards: list[str] = []
-    for item in list(run.get("results", []))[:20]:
+    results = list(run.get("results", []))
+    for item in results:
         title = html.escape(str(item.get("title", "Sin título")))
         source = html.escape(str(item.get("source", "Fuente pública")))
         summary = html.escape(str(item.get("ai_summary") or item.get("subtitle") or item.get("summary") or "")[:240])
@@ -60,7 +61,7 @@ def _current_run_html(run: dict[str, Any]) -> str:
         '<tr><td style="padding:24px;background:linear-gradient(135deg,#D9F7FA,#A9E1EA);border-bottom:4px solid #62B8D6">'
         '<p style="margin:0 0 8px;color:#003B6E;font:800 11px Arial,sans-serif;letter-spacing:1px">CONSULTORA DIAGONALES · AGENCIA DE NOTICIAS</p>'
         '<h1 style="margin:0;color:#002B54;font:800 27px Arial,sans-serif">Resultados del rastreo</h1>'
-        f'<p style="margin:9px 0 0;color:#31566C;font:13px Arial,sans-serif">Actualizado {generated}</p>'
+        f'<p style="margin:9px 0 0;color:#31566C;font:13px Arial,sans-serif">{len(results)} nota(s) · Actualizado {generated}</p>'
         '</td></tr><tr><td style="padding:20px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0">'
         + ''.join(cards) + '</table></td></tr></table></td></tr></table></body></html>'
     )
