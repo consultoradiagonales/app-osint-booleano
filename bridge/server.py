@@ -405,6 +405,18 @@ def make_handler(app: BridgeApp):
             self.end_headers()
             self.wfile.write(body)
 
+        def _xsl(self, path: Path) -> None:
+            if not path.is_file():
+                self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "Estilo RSS no encontrado"})
+                return
+            body = path.read_bytes()
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "text/xsl; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+
         def _png(self, path: Path) -> None:
             if not path.is_file():
                 self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "Imagen no encontrada"})
@@ -462,7 +474,7 @@ def make_handler(app: BridgeApp):
                 self._xml(Path(app.reports_dir) / "agenda.xml")
                 return
             if path.path == "/reports/rss.xsl" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
-                self._xml(Path(app.reports_dir) / "rss.xsl")
+                self._xsl(Path(app.reports_dir) / "rss.xsl")
                 return
             if path.path == "/api/bridge/health":
                 self._json(HTTPStatus.OK, {

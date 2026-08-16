@@ -61,9 +61,9 @@ def _rss_xml(items: list[dict[str, Any]], generated_at: datetime, *, title: str,
         subtitle = str(item.get("ai_summary") or item.get("subtitle") or item.get("summary") or "").strip()[:240]
         analysis = str(item.get("political_analysis") or "").strip()[:240]
         alternatives = [str(value).strip() for value in item.get("alternate_urls", []) if str(value).strip()]
-        description = subtitle + (f"\n\nAnálisis político: {analysis}" if analysis else "")
+        item_description = subtitle + (f"\n\nAnálisis político: {analysis}" if analysis else "")
         if alternatives:
-            description += "\n\nOtras fuentes:\n" + "\n".join(alternatives)
+            item_description += "\n\nOtras fuentes:\n" + "\n".join(alternatives)
         try:
             published = datetime.fromisoformat(str(item.get("published_at") or "").replace("Z", "+00:00"))
         except ValueError:
@@ -74,7 +74,7 @@ def _rss_xml(items: list[dict[str, Any]], generated_at: datetime, *, title: str,
             f"<guid isPermaLink=\"true\">{escape(url)}</guid>"
             f"<pubDate>{escape(format_datetime(published))}</pubDate>"
             f"<category>{escape(str(item.get('topic', 'Política y economía')))}</category>"
-            f"<description>{escape(description)}</description></item>"
+            f"<description>{escape(item_description)}</description></item>"
         )
     return (
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
