@@ -23,6 +23,7 @@
     .high-alert.alert-critica{border-right-color:#C1432A;border-bottom-color:#C1432A}.high-alert.alert-alta{border-right-color:#D99A1B;border-bottom-color:#D99A1B}.high-alert.alert-seguimiento{border-right-color:#1F8A4C;border-bottom-color:#1F8A4C}.alert-pills{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.alert-pill{display:inline-block;border-radius:99px;padding:4px 7px;font:800 9px ui-monospace,Consolas,monospace;letter-spacing:.04em}.alert-pill.level{background:#C1432A;color:#fff}.alert-critica .alert-pill.level{background:#C1432A}.alert-alta .alert-pill.level{background:#D99A1B}.alert-seguimiento .alert-pill.level{background:#1F8A4C}.alert-pill.mentions{background:#fff;color:#31566c;border:1px solid currentColor}.alert-critica .alert-pill.mentions{color:#C1432A}.alert-alta .alert-pill.mentions{color:#8E6E0E}.alert-seguimiento .alert-pill.mentions{color:#1F8A4C}.alert-date{font-size:11px!important;color:#477086!important;margin:4px 0 7px!important}
     /* Panel editorial: misma jerarquía visual que los cables para lectura operativa. */
     html{background:#e6f3f6}.shell{width:min(860px,94vw);margin:28px auto 60px;padding:0 28px 30px;background:#fff;border:1px solid #c8e6ed;border-top:6px solid #6ed5ff;border-radius:0;box-shadow:0 22px 65px #003a9030}.topbar{position:relative;display:block;margin:0 -28px 22px;padding:24px 28px 22px;min-height:220px;background:linear-gradient(135deg,#d9f7fa 0%,#a9e1ea 52%,#effbfb 100%);border-radius:0;border-bottom:4px solid #62b8d6;box-shadow:none}.cd-logo{width:250px;max-width:72%;max-height:none;margin:0 0 42px}.topbar .eyebrow{font-size:11px;color:#003b6e;letter-spacing:.14em}.topbar h1{margin-top:7px;font-size:29px;color:#002b54}.signal{position:absolute;right:28px;top:24px;background:#ffffff99;color:#245b78;border-color:#62b8d6}.signal.online{color:#1f8a4c;border-color:#1f8a4c}.card{margin-bottom:14px;padding:19px;background:#f8fcff;border:0;border-left:4px solid #009afe;border-right:1px solid #cde5f4;border-bottom:1px solid #cde5f4;border-radius:0;box-shadow:none}.section-head h2,.card>h2,.action-card h2{color:#002b54}.kicker{color:#0073bb}.intro,.action-card p:last-child{color:#31566c}.secondary{background:#003a90;color:#fff;border-radius:8px}.primary,.pulse-button{background:#003a90;color:#fff;border-radius:8px;box-shadow:none}.pulse-button{width:auto;min-width:118px;aspect-ratio:auto;padding:12px 15px}.pulse-button span{display:inline;margin:0 5px 0 0}.metric.card{background:#f4fbff;border-left-color:#62b8d6}.metric strong{color:#003a90}.recipient,.watch-row,.result-list a{background:#fff;border:1px solid #cde5f4;border-left:3px solid #62b8d6}.picker,input,textarea{background:#fff!important;border-color:#78bfe8!important;color:#092743!important}.high-alert{border-left:4px solid #c1432a}.report-actions .secondary{font-size:11px}.verify-note{background:#fff6e2}.schedule-form{background:#f4fbff;border-color:#cde5f4}.schedule-bar .btn-schedule{background:#fff;color:#003a90;border-color:#62b8d6}.schedule-form input[type=text]{background:#fff!important;color:#092743!important;border-color:#78bfe8!important}@media(max-width:620px){.shell{width:100%;margin:0;padding:0 16px 28px;border:0;border-top:4px solid #6ed5ff}.topbar{margin:0 -16px 18px;padding:19px 16px;min-height:190px}.cd-logo{width:210px;margin-bottom:28px}.topbar h1{font-size:25px}.signal{right:16px;top:18px}.card{padding:15px}.picker-grid.hours{grid-template-columns:repeat(3,1fr)}}
+    .delivery-status{min-height:18px;margin:10px 0 0;font-size:12px;color:#477086}.delivery-status.success{color:#1f8a4c;font-weight:700}.delivery-status.error{color:#c1432a;font-weight:700}
   </style>
 </head>
 <body>
@@ -86,10 +87,11 @@
 
     <section class="card">
       <div class="section-head"><div><p class="kicker">ENVÍO SEGMENTADO</p><h2>Elegí los productos y los clientes</h2></div></div>
-      <p class="intro" style="font-size:12px;margin:0 0 10px">Podés seleccionar varios productos: llegan reunidos en un único mensaje.</p>
+      <p class="intro" style="font-size:12px;margin:0 0 10px">Se envía un único correo HTML desde <b>info.consultoradiagonales@gmail.com</b>. El RSS queda como canal de lectura, no como notificación.</p>
       <div class="picker-grid" id="delivery-products"><label><input type="checkbox" value="politico" checked> Cable político y económico</label><label><input type="checkbox" value="agenda"> Agenda legislativa</label><label><input type="checkbox" value="boletin"> Boletín Oficial</label><label><input type="checkbox" value="geopolitica"> Geopolítica</label><label><input type="checkbox" value="general"> Cable completo</label></div>
       <div class="recipients" id="delivery-recipients" style="margin-top:12px"></div>
-      <button class="pulse-button protected" id="send-product" type="button" disabled>ENVIAR MENSAJE</button>
+      <button class="pulse-button protected" id="send-product" type="button" disabled>ENVIAR MAIL HTML</button>
+      <p class="delivery-status" id="delivery-status" role="status" aria-live="polite"></p>
     </section>
 
     <section class="card">
@@ -124,7 +126,7 @@
       watchForm: byId("watch-form"), provincePicker: byId("province-picker"), provinceSummary: byId("province-summary"), watchCity: byId("watch-city"), watchOther: byId("watch-other"),
       topicPicker: byId("topic-picker"), topicSummary: byId("topic-summary"), hourPicker: byId("hour-picker"), hourSummary: byId("hour-summary"), watchCount: byId("watch-count"), watches: byId("watches"),
       recipientForm: byId("recipient-form"), email: byId("email"), recipientName: byId("recipient-name"),
-      recipientCount: byId("recipient-count"), recipients: byId("recipients"), deliveryProducts: byId("delivery-products"), deliveryRecipients: byId("delivery-recipients"), sendProduct: byId("send-product"),
+      recipientCount: byId("recipient-count"), recipients: byId("recipients"), deliveryProducts: byId("delivery-products"), deliveryRecipients: byId("delivery-recipients"), sendProduct: byId("send-product"), deliveryStatus: byId("delivery-status"),
       highAlerts: byId("high-alerts"), highAlertCount: byId("high-alert-count"), sortAlerts: byId("sort-alerts"), clearAlerts: byId("clear-alerts"),
       openReports: byId("open-reports"), latestReport: byId("latest-report"), reportPath: byId("report-path")
     };
@@ -185,6 +187,11 @@
       node.textContent = String(text ?? "");
       if (className) node.className = className;
       return node;
+    }
+
+    function setDeliveryStatus(message = "", kind = "") {
+      elements.deliveryStatus.textContent = message;
+      elements.deliveryStatus.className = `delivery-status ${kind}`;
     }
 
     function alertPresentation(item) {
@@ -643,13 +650,21 @@
 
     async function sendSelectedProduct() {
       const recipient_ids = [...elements.deliveryRecipients.querySelectorAll("input:checked")].map(input => Number(input.value));
-      if (!recipient_ids.length) { setStatus("Elegí al menos un cliente.", "error"); return; }
+      if (!recipient_ids.length) { setDeliveryStatus("Elegí al menos un cliente.", "error"); return; }
       const products = [...elements.deliveryProducts.querySelectorAll("input:checked")].map(input => input.value);
-      if (!products.length) { setStatus("Elegí al menos un producto.", "error"); return; }
+      if (!products.length) { setDeliveryStatus("Elegí al menos un producto.", "error"); return; }
+      setDeliveryStatus("Enviando correo HTML…");
       await withBusy(async () => {
-        const data = await request("/reports/send-mailing", { method: "POST", body: JSON.stringify({products, recipient_ids}) });
-        if (!data.ok) throw new Error(data.error || "No se pudo enviar");
-        setStatus("Mensaje enviado a los clientes seleccionados.", "success");
+        try {
+          const data = await request("/reports/send-mailing", { method: "POST", body: JSON.stringify({products, recipient_ids}) });
+          if (!data.ok) throw new Error(data.error || "No se pudo enviar");
+          const sent = (data.deliveries || []).filter(item => item.status === "sent").length;
+          setDeliveryStatus(`Correo HTML enviado a ${sent} cliente${sent === 1 ? "" : "s"}.`, "success");
+          setStatus("Mensaje enviado a los clientes seleccionados.", "success");
+        } catch (error) {
+          setDeliveryStatus(error instanceof Error ? error.message : "No se pudo enviar el correo.", "error");
+          throw error;
+        }
       });
     }
 
