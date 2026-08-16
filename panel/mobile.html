@@ -216,16 +216,8 @@
       if (!state.lastRun) return;
       const all = Array.isArray(state.lastRun.results) ? state.lastRun.results : [];
       const total = state.lastRun.total_matched ?? all.length;
-      // El resultado manual es independiente del informe editorial acumulado.
-      // Se muestran hasta 20 para no mezclarlo con alertas de otros rastreos.
-      const items = all.slice(0, 20);
-      for (const item of items) {
-        const link = document.createElement("a");
-        link.href = item.url; link.target = "_blank"; link.rel = "noopener noreferrer";
-        link.append(createText("strong", item.title || "Sin título"));
-        link.append(createText("span", `${item.source || "Fuente"} · relevancia ${item.relevance_score ?? 0}/100`));
-        elements.results.append(link);
-      }
+      // Las notas se muestran exclusivamente en "TEMAS RASTREADOS" para que
+      // una búsqueda manual y los monitores no dupliquen el mismo contenido.
       // Schedule bar
       const bar = document.createElement("div"); bar.className = "schedule-bar";
       const btnSched = document.createElement("button"); btnSched.className = "btn-schedule"; btnSched.textContent = "📅 Programar este rastreo";
@@ -466,7 +458,8 @@
         state.lastRun = result;
         state.runs = [result, ...state.runs.filter(item => item.run_id !== result.run_id)].slice(0, 5);
         elements.lastCount.textContent = result.total_matched ?? 0;
-        renderResults();
+        state.highAlerts = Array.isArray(result.results) ? result.results : [];
+        renderResults(); renderHighAlerts();
         setStatus(`Corrida completa: ${result.total_matched ?? 0} coincidencia(s).`, "success");
       });
     }

@@ -4,6 +4,11 @@ from bridge.boolean_parser import BooleanSyntaxError, coverage, discovery_querie
 
 
 class BooleanParserTests(unittest.TestCase):
+
+    def test_short_party_terms_do_not_match_inside_other_words(self):
+        self.assertFalse(parse("PRO").evaluate("Se profesionalizaron las direcciones de museos"))
+        self.assertFalse(parse("PJ").evaluate("El proyecto fue tratado en comisión"))
+        self.assertTrue(parse("PRO").evaluate("El PRO presentó una iniciativa"))
     def test_precedence(self):
         root = parse("UCR OR radicalismo AND convencion")
         self.assertTrue(root.evaluate("UCR"))

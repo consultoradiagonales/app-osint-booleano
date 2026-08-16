@@ -37,7 +37,14 @@ class Term(Node):
                 if normalize_text(alias_key) == key:
                     choices.extend(values)
                     break
-        return any(normalize_text(choice) in haystack for choice in choices if choice.strip())
+        # La coincidencia debe respetar palabras completas. Sin este límite,
+        # `PRO` hacía entrar "proceso", "proyecto" y "profesionalizar";
+        # `PJ` coincidía con fragmentos ajenos al pedido editorial.
+        return any(
+            re.search(rf"(?<!\w){re.escape(normalize_text(choice))}(?!\w)", haystack) is not None
+            for choice in choices
+            if choice.strip()
+        )
 
     def positive_terms(self, negated: bool = False) -> list[str]:
         return [] if negated else [self.value]
