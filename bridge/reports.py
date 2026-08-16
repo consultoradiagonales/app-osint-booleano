@@ -5,6 +5,7 @@ from datetime import datetime
 from email.utils import format_datetime
 from html import escape
 import json
+import os
 from pathlib import Path
 import re
 from typing import Any
@@ -41,10 +42,21 @@ _LOGO_PACKAGE = Path(__file__).resolve().parent.parent / "panel" / "assets" / "c
 _LOGO_B64_CACHE: str | None = None
 
 
-def _rss_xml(items: list[dict[str, Any]], generated_at: datetime) -> str:
+def _public_url(path: str) -> str:
+    """RSS requires absolute links; production overrides the local base URL."""
+    return os.getenv("OSINT_PUBLIC_URL", "http://127.0.0.1:8765").rstrip("/") + path
+
+
+def _is_legislative_agenda(item: dict[str, Any]) -> bool:
+    title = str(item.get("title", "")).casefold()
+    source = str(item.get("source", "")).casefold()
+    return title.startswith(("senado · comisión", "diputados · comisión")) or "agenda de comisiones" in source
+
+
+def _rss_xml(items: list[dict[str, Any]], generated_at: datetime, *, title: str, description: str, landing_path: str) -> str:
     entries: list[str] = []
     for item in items:
-        title = str(item.get("title", "Sin título"))
+        item_title = str(item.get("title", "Sin título"))
         url = str(item.get("url", "")).strip()
         subtitle = str(item.get("ai_summary") or item.get("subtitle") or item.get("summary") or "").strip()[:240]
         analysis = str(item.get("political_analysis") or "").strip()[:240]
@@ -58,7 +70,7 @@ def _rss_xml(items: list[dict[str, Any]], generated_at: datetime) -> str:
             published = generated_at
         entries.append(
             "<item>"
-            f"<title>{escape(title)}</title><link>{escape(url)}</link>"
+            f"<title>{escape(item_title)}</title><link>{escape(url)}</link>"
             f"<guid isPermaLink=\"true\">{escape(url)}</guid>"
             f"<pubDate>{escape(format_datetime(published))}</pubDate>"
             f"<category>{escape(str(item.get('topic', 'Política y economía')))}</category>"
@@ -68,9 +80,11 @@ def _rss_xml(items: list[dict[str, Any]], generated_at: datetime) -> str:
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         "<?xml-stylesheet type=\"text/xsl\" href=\"/reports/rss.xsl\"?>\n"
         "<rss version=\"2.0\"><channel>"
-        "<title>Consultora Diagonales · Cables relevantes</title>"
-        "<link>http://127.0.0.1:8765/reports/latest</link>"
-        "<description>Política, economía, salud pública y seguimiento legislativo.</description>"
+        f"<title>{escape(title)}</title>"
+        f"<link>{escape(_public_url(landing_path))}</link>"
+        f"<description>{escape(description)}</description>"
+        "<managingEditor>info.consultoradiagonales@gmail.com (Consultora Diagonales)</managingEditor>"
+        "<language>es-AR</language>"
         f"<lastBuildDate>{escape(format_datetime(generated_at))}</lastBuildDate>"
         + "".join(entries) + "</channel></rss>\n"
     )
@@ -413,6 +427,7 @@ document.querySelectorAll('.cables article').forEach(function(art, i) { art.data
     json_path = folder / "ultimas_alertas_altas.json"
     html_path = folder / "ultimas_alertas_altas.html"
     rss_path = folder / "rss.xml"
+    agenda_rss_path = folder / "agenda.xml"
     rss_xsl_path = folder / "rss.xsl"
     mailing_path = folder / "mailing.html"
     payload = {
@@ -425,7 +440,28 @@ document.querySelectorAll('.cables article').forEach(function(art, i) { art.data
     }
     json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     html_path.write_text(latest_html, encoding="utf-8")
-    rss_path.write_text(_rss_xml(current, now), encoding="utf-8")
+    editorial_items = [item for item in current if not _is_legislative_agenda(item)]
+    agenda_items = [item for item in current if _is_legislative_agenda(item)]
+    rss_path.write_text(
+        _rss_xml(
+            editorial_items,
+            now,
+            title="Consultora Diagonales · Cables políticos y económicos",
+            description="Selección editorial de política, economía, gestión pública y decisiones institucionales.",
+            landing_path="/reports/latest",
+        ),
+        encoding="utf-8",
+    )
+    agenda_rss_path.write_text(
+        _rss_xml(
+            agenda_items,
+            now,
+            title="Consultora Diagonales · Agenda legislativa",
+            description="Comisiones, sesiones y actividad parlamentaria. Feed separado del cable editorial.",
+            landing_path="/reports/latest",
+        ),
+        encoding="utf-8",
+    )
     mailing_path.write_text(_mailing_html(current, generated_at), encoding="utf-8")
     rss_xsl_path.write_text("""<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">

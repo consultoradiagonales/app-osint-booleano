@@ -458,6 +458,9 @@ def make_handler(app: BridgeApp):
             if path.path == "/reports/feed.xml" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
                 self._xml(Path(app.reports_dir) / "rss.xml")
                 return
+            if path.path == "/reports/agenda.xml" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
+                self._xml(Path(app.reports_dir) / "agenda.xml")
+                return
             if path.path == "/reports/rss.xsl" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
                 self._xml(Path(app.reports_dir) / "rss.xsl")
                 return
