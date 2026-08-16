@@ -32,6 +32,11 @@ EDITORIAL_DESKS: dict[str, tuple[str, ...]] = {
         "pami", "ioma", "anmat", "ministerio de salud", "obra social", "hospital",
         "medicamento", "vacuna", "salud publica", "sistema de salud", "prestacion",
     ),
+    "Geopolítica": (
+        "geopolitica", "geopolitical", "mercosur", "fmi", "otan", "union europea",
+        "estados unidos", "china", "rusia", "ucrania", "brics", "comercio exterior",
+        "politica exterior", "sanciones internacionales",
+    ),
 }
 
 HEALTH_PUBLIC_IMPACT = (
@@ -55,7 +60,7 @@ def classify_editorial_desk(item: Mapping[str, object] | object) -> str:
     if "Salud, politica y presupuesto" in matched and not any(marker in text for marker in HEALTH_PUBLIC_IMPACT):
         matched.remove("Salud, politica y presupuesto")
     # Legislatura y Congreso son las mesas de mayor especificidad.
-    for desk in ("Legislatura bonaerense", "Congreso nacional", "Salud, politica y presupuesto", "Economia y regulacion", "Ejecutivo y politica"):
+    for desk in ("Legislatura bonaerense", "Congreso nacional", "Salud, politica y presupuesto", "Economia y regulacion", "Ejecutivo y politica", "Geopolítica"):
         if desk in matched:
             return desk
     return ""
@@ -63,3 +68,7 @@ def classify_editorial_desk(item: Mapping[str, object] | object) -> str:
 
 def is_editorially_in_scope(item: Mapping[str, object] | object) -> bool:
     return bool(classify_editorial_desk(item))
+
+
+def is_geopolitical_item(item: Mapping[str, object] | object) -> bool:
+    return classify_editorial_desk(item) == "Geopolítica"

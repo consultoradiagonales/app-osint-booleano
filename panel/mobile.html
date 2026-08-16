@@ -32,7 +32,7 @@
 
     <section class="card">
       <div class="section-head"><div><p class="kicker">ARCHIVO DE REDACCIÓN</p><h2>Informes del rastreo</h2></div><span class="secure">MÁXIMO 10</span></div>
-      <div class="report-actions"><button class="secondary protected" id="open-reports" type="button" disabled>Abrir carpeta de informes</button><a class="secondary" id="latest-report" href="/reports/latest" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Abrir último informe</a><a class="secondary" href="/reports/mailing" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Vista de mailing</a><a class="secondary" href="/reports/feed.xml" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Cable político</a><a class="secondary" href="/reports/agenda.xml" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Agenda legislativa</a><a class="secondary" href="/feeds/politico.rss" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">RSS técnico</a></div>
+      <div class="report-actions"><button class="secondary protected" id="open-reports" type="button" disabled>Abrir carpeta de informes</button><a class="secondary" id="latest-report" href="/reports/latest" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Abrir último informe</a><a class="secondary" href="/reports/mailing" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Vista de mailing</a><a class="secondary" href="/reports/feed.xml" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Cable político</a><a class="secondary" href="/reports/agenda.xml" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Agenda legislativa</a><a class="secondary" href="/reports/boletin.xml" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Boletín Oficial</a><a class="secondary" href="/reports/geopolitica.xml" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Geopolítica</a><a class="secondary" href="/feeds/politico.rss" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">RSS técnico</a></div>
       <p class="report-path" id="report-path">La ubicación aparecerá al conectar.</p>
     </section>
 
@@ -82,6 +82,13 @@
     </section>
 
     <section class="card">
+      <div class="section-head"><div><p class="kicker">ENVÍO SEGMENTADO</p><h2>Elegí el producto y los clientes</h2></div></div>
+      <label>Producto editorial<select id="delivery-product"><option value="politico">Cable político y económico</option><option value="agenda">Agenda legislativa</option><option value="boletin">Boletín Oficial</option><option value="geopolitica">Geopolítica</option><option value="general">Cable completo</option></select></label>
+      <div class="recipients" id="delivery-recipients" style="margin-top:12px"></div>
+      <button class="pulse-button protected" id="send-product" type="button" disabled>ENVIAR PRODUCTO</button>
+    </section>
+
+    <section class="card">
       <div class="section-head"><div><p class="kicker">TEMAS RASTREADOS</p><h2>Resultados del rastreo</h2></div><div style="display:flex;gap:8px;align-items:center"><b class="counter" id="high-alert-count">0 artículos</b><button class="secondary" id="sort-alerts" type="button" style="min-height:32px;padding:0 12px;font-size:10px">↓ MENCIONES</button><button class="secondary" id="clear-alerts" type="button" style="min-height:32px;padding:0 12px;font-size:10px;color:var(--bad,#C1432A);border-color:var(--bad,#C1432A)">✕ LIMPIAR</button></div></div>
       <div class="high-alerts" id="high-alerts"><p class="empty">Conectá la PC para ver los resultados.</p></div>
     </section>
@@ -113,7 +120,7 @@
       watchForm: byId("watch-form"), provincePicker: byId("province-picker"), provinceSummary: byId("province-summary"), watchCity: byId("watch-city"), watchOther: byId("watch-other"),
       topicPicker: byId("topic-picker"), topicSummary: byId("topic-summary"), hourPicker: byId("hour-picker"), hourSummary: byId("hour-summary"), watchCount: byId("watch-count"), watches: byId("watches"),
       recipientForm: byId("recipient-form"), email: byId("email"), recipientName: byId("recipient-name"),
-      recipientCount: byId("recipient-count"), recipients: byId("recipients"),
+      recipientCount: byId("recipient-count"), recipients: byId("recipients"), deliveryProduct: byId("delivery-product"), deliveryRecipients: byId("delivery-recipients"), sendProduct: byId("send-product"),
       highAlerts: byId("high-alerts"), highAlertCount: byId("high-alert-count"), sortAlerts: byId("sort-alerts"), clearAlerts: byId("clear-alerts"),
       openReports: byId("open-reports"), latestReport: byId("latest-report"), reportPath: byId("report-path")
     };
@@ -301,6 +308,18 @@
         actions.append(toggle, remove);
         row.append(dot, identity, actions);
         elements.recipients.append(row);
+      }
+      renderDeliveryRecipients();
+    }
+
+    function renderDeliveryRecipients() {
+      elements.deliveryRecipients.replaceChildren();
+      const active = state.recipients.filter(item => item.enabled);
+      if (!active.length) { elements.deliveryRecipients.append(createText("p", "Activá al menos un cliente para enviar.", "empty")); return; }
+      for (const item of active) {
+        const label = document.createElement("label"); label.style.display = "flex"; label.style.gap = "8px"; label.style.alignItems = "center"; label.style.padding = "6px 0";
+        const input = document.createElement("input"); input.type = "checkbox"; input.value = String(item.id); input.checked = true; input.disabled = !state.connected || state.busy;
+        label.append(input, document.createTextNode(` ${item.name || item.email} · ${item.email}`)); elements.deliveryRecipients.append(label);
       }
     }
 
@@ -595,6 +614,16 @@
       }
     }
 
+    async function sendSelectedProduct() {
+      const recipient_ids = [...elements.deliveryRecipients.querySelectorAll("input:checked")].map(input => Number(input.value));
+      if (!recipient_ids.length) { setStatus("Elegí al menos un cliente.", "error"); return; }
+      await withBusy(async () => {
+        const data = await request("/reports/send-mailing", { method: "POST", body: JSON.stringify({product: elements.deliveryProduct.value, recipient_ids}) });
+        if (!data.ok) throw new Error(data.error || "No se pudo enviar");
+        setStatus("Producto enviado a los clientes seleccionados.", "success");
+      });
+    }
+
     elements.connect.addEventListener("click", connect);
     elements.runWatchers.addEventListener("click", runWatchers);
     elements.runQuery.addEventListener("click", runQuery);
@@ -602,6 +631,7 @@
     byId("btn-ai-analyze").addEventListener("click", analyzeWithAI);
     elements.watchForm.addEventListener("submit", addWatch);
     elements.recipientForm.addEventListener("submit", addRecipient);
+    elements.sendProduct.addEventListener("click", sendSelectedProduct);
     document.querySelectorAll("[data-trend-view]").forEach(button => button.addEventListener("click", () => {
       document.querySelectorAll("[data-trend-view]").forEach(item => item.classList.toggle("active", item === button));
       const selected = button.dataset.trendView;

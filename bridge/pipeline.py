@@ -10,7 +10,7 @@ from typing import Any, Mapping, Sequence
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from .boolean_parser import coverage, discovery_queries, normalize_text, parse
-from .editorial import classify_editorial_desk, is_editorially_in_scope
+from .editorial import classify_editorial_desk, is_editorially_in_scope, is_geopolitical_item
 from .ai import enrich_with_claude
 from .models import Evidence, RunResult, utc_now
 from .sources import discover
@@ -186,12 +186,16 @@ def run_pipeline(
         int(source_config.get("max_per_job", 100)),
     )
     candidates = [item for item in raw if within_window(item, since_days)]
+    geopolitics_watch = "geopolit" in normalize_text(f"{watch_id} {watch_label}")
     matched = [
         item
         for item in candidates
         if root.evaluate(item.searchable_text(), aliases)
-        and item_allowed_by_policy(item, source_config)
-        and is_editorially_in_scope(item)
+        and (
+            is_geopolitical_item(item)
+            if geopolitics_watch
+            else item_allowed_by_policy(item, source_config) and is_editorially_in_scope(item)
+        )
     ]
     results = deduplicate(matched)
     authority_values = source_config.get("high_authority_domains", source_config.get("official_domains", []))

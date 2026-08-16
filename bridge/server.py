@@ -473,11 +473,23 @@ def make_handler(app: BridgeApp):
             if path.path == "/reports/agenda.xml" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
                 self._html(Path(app.reports_dir) / "feed-agenda.html")
                 return
+            if path.path == "/reports/boletin.xml" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
+                self._html(Path(app.reports_dir) / "feed-boletin.html")
+                return
+            if path.path == "/reports/geopolitica.xml" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
+                self._html(Path(app.reports_dir) / "feed-geopolitica.html")
+                return
             if path.path == "/feeds/politico.rss" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
                 self._xml(Path(app.reports_dir) / "rss.xml")
                 return
             if path.path == "/feeds/agenda.rss" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
                 self._xml(Path(app.reports_dir) / "agenda.xml")
+                return
+            if path.path == "/feeds/boletin.rss" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
+                self._xml(Path(app.reports_dir) / "boletin.xml")
+                return
+            if path.path == "/feeds/geopolitica.rss" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
+                self._xml(Path(app.reports_dir) / "geopolitica.xml")
                 return
             if path.path == "/reports/rss.xsl" and (self.client_address[0] in {"127.0.0.1", "::1"} or self._authorized()):
                 self._xsl(Path(app.reports_dir) / "rss.xsl")
@@ -617,11 +629,26 @@ def make_handler(app: BridgeApp):
                     self._json(HTTPStatus.OK, {"ok": True, "folder": str(folder.resolve())})
                     return
                 if path == "/api/bridge/reports/send-mailing":
-                    mailing_path = Path(app.reports_dir) / "mailing.html"
+                    products = {
+                        "general": ("mailing.html", "Cables relevantes"),
+                        "politico": ("feed-politico.html", "Cable político y económico"),
+                        "agenda": ("feed-agenda.html", "Agenda legislativa"),
+                        "boletin": ("feed-boletin.html", "Boletín Oficial"),
+                        "geopolitica": ("feed-geopolitica.html", "Geopolítica"),
+                    }
+                    product = str(payload.get("product", "general")).strip().casefold()
+                    if product not in products:
+                        raise ValueError("Producto de distribución no válido")
+                    filename, product_name = products[product]
+                    mailing_path = Path(app.reports_dir) / filename
                     if not mailing_path.is_file():
                         self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "No hay mailing generado aún"})
                         return
-                    recipients = [item["email"] for item in app.recipients.list(enabled_only=True)]
+                    selected_ids = {int(value) for value in payload.get("recipient_ids", []) if str(value).isdigit()}
+                    recipient_rows = app.recipients.list(enabled_only=True)
+                    if selected_ids:
+                        recipient_rows = [item for item in recipient_rows if int(item["id"]) in selected_ids]
+                    recipients = [item["email"] for item in recipient_rows]
                     if not recipients:
                         self._json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "No hay destinatarios activos"})
                         return
@@ -631,23 +658,24 @@ def make_handler(app: BridgeApp):
                     html_body = mailing_path.read_text(encoding="utf-8")
                     normalized = re.sub(r"Actualizado [^<]+", "", html_body)
                     digest = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+                    signature = f"{product}:{digest}:{','.join(sorted(recipients))}"
                     delivery_state = Path(app.reports_dir) / "mailing_delivery.json"
                     try:
                         previous = json.loads(delivery_state.read_text(encoding="utf-8"))
                         previous_at = datetime.fromisoformat(str(previous.get("sent_at", "")).replace("Z", "+00:00"))
                     except (OSError, ValueError, json.JSONDecodeError):
                         previous, previous_at = {}, None
-                    if previous.get("digest") == digest and previous_at and datetime.now(timezone.utc) - previous_at < timedelta(hours=24):
+                    if previous.get("signature") == signature and previous_at and datetime.now(timezone.utc) - previous_at < timedelta(hours=24):
                         self._json(HTTPStatus.CONFLICT, {"ok": False, "error": "Este cable ya fue enviado. Se habilitará al generarse un rastreo con novedades."})
                         return
                     from .notifier import send_email_alert
-                    subject = "CABLE DE NOTICIAS · " + datetime.now().strftime("%d/%m/%Y %H:%M")
+                    subject = f"CONSULTORA DIAGONALES · {product_name} · " + datetime.now().strftime("%d/%m/%Y %H:%M")
                     deliveries = send_email_alert(recipients, subject, "Cables relevantes de Consultora Diagonales.", html_body)
                     for delivery in deliveries:
                         app.recipients.log_delivery(delivery["email"], "mailing", subject, delivery["status"], delivery["error"])
                     ok = bool(deliveries) and all(item["status"] == "sent" for item in deliveries)
                     if ok:
-                        delivery_state.write_text(json.dumps({"digest": digest, "sent_at": datetime.now(timezone.utc).isoformat(), "recipients": recipients}, ensure_ascii=False), encoding="utf-8")
+                        delivery_state.write_text(json.dumps({"signature": signature, "sent_at": datetime.now(timezone.utc).isoformat(), "recipients": recipients, "product": product}, ensure_ascii=False), encoding="utf-8")
                     self._json(HTTPStatus.OK if ok else HTTPStatus.BAD_GATEWAY, {"ok": ok, "deliveries": deliveries})
                     return
                 if path == "/api/bridge/watches":

@@ -60,6 +60,20 @@
       "topics": ["Economía", "Política"],
       "custom_terms": "",
       "schedule_hours": [8, 13, 19]
+    },
+    {
+      "id": "geopolitica-internacional",
+      "label": "Geopolítica internacional",
+      "enabled": true,
+      "query": "(Mercosur OR FMI OR OTAN OR \"Unión Europea\" OR \"Estados Unidos\" OR China OR Rusia OR Ucrania OR BRICS) AND (gobierno OR elecciones OR \"política exterior\" OR comercio OR economía OR sanciones OR acuerdo)",
+      "since_days": 3,
+      "max_results": 100,
+      "minimum_relevance": 60,
+      "provinces": ["Internacional"],
+      "city": "",
+      "topics": ["Política", "Economía"],
+      "custom_terms": "",
+      "schedule_hours": [8, 13, 19]
     }
   ]
 }
