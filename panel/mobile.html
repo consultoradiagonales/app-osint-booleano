@@ -96,6 +96,7 @@
 
     <section class="card">
       <div class="section-head"><div><p class="kicker">TEMAS RASTREADOS</p><h2>Resultados del rastreo</h2></div><div style="display:flex;gap:8px;align-items:center"><b class="counter" id="high-alert-count">0 artículos</b><button class="secondary" id="sort-alerts" type="button" style="min-height:32px;padding:0 12px;font-size:10px">↓ FECHA</button><button class="secondary" id="clear-alerts" type="button" style="min-height:32px;padding:0 12px;font-size:10px;color:var(--bad,#C1432A);border-color:var(--bad,#C1432A)">✕ LIMPIAR</button></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button class="secondary protected" id="send-tracked-mail" type="button" disabled>Enviar este rastreo por mail</button><span class="delivery-status" id="tracked-mail-status"></span></div>
       <div class="high-alerts" id="high-alerts"><p class="empty">Conectá la PC para ver los resultados.</p></div>
     </section>
 
@@ -127,7 +128,7 @@
       topicPicker: byId("topic-picker"), topicSummary: byId("topic-summary"), hourPicker: byId("hour-picker"), hourSummary: byId("hour-summary"), watchCount: byId("watch-count"), watches: byId("watches"),
       recipientForm: byId("recipient-form"), email: byId("email"), recipientName: byId("recipient-name"),
       recipientCount: byId("recipient-count"), recipients: byId("recipients"), deliveryProducts: byId("delivery-products"), deliveryRecipients: byId("delivery-recipients"), sendProduct: byId("send-product"), deliveryStatus: byId("delivery-status"),
-      highAlerts: byId("high-alerts"), highAlertCount: byId("high-alert-count"), sortAlerts: byId("sort-alerts"), clearAlerts: byId("clear-alerts"),
+      highAlerts: byId("high-alerts"), highAlertCount: byId("high-alert-count"), sortAlerts: byId("sort-alerts"), clearAlerts: byId("clear-alerts"), sendTrackedMail: byId("send-tracked-mail"), trackedMailStatus: byId("tracked-mail-status"),
       openReports: byId("open-reports"), latestReport: byId("latest-report"), reportPath: byId("report-path")
     };
 
@@ -661,6 +662,24 @@
       });
     }
 
+    async function sendTrackedMail() {
+      elements.sendTrackedMail.disabled = true;
+      elements.trackedMailStatus.textContent = "Enviando un único cable HTML…";
+      elements.trackedMailStatus.className = "delivery-status";
+      try {
+        const data = await request("/reports/send-mailing", { method: "POST", body: JSON.stringify({product:"general"}) });
+        if (!data.ok) throw new Error(data.error || "No se pudo enviar");
+        const sent = (data.deliveries || []).filter(item => item.status === "sent").length;
+        elements.trackedMailStatus.textContent = `✓ Cable HTML enviado una vez a ${sent} cliente${sent === 1 ? "" : "s"}.`;
+        elements.trackedMailStatus.className = "delivery-status success";
+      } catch (error) {
+        elements.trackedMailStatus.textContent = error instanceof Error ? error.message : "No se pudo enviar el cable.";
+        elements.trackedMailStatus.className = "delivery-status error";
+      } finally {
+        elements.sendTrackedMail.disabled = !state.connected || state.busy;
+      }
+    }
+
     elements.connect.addEventListener("click", connect);
     elements.runWatchers.addEventListener("click", runWatchers);
     elements.runQuery.addEventListener("click", runQuery);
@@ -673,6 +692,7 @@
     elements.watchForm.addEventListener("submit", addWatch);
     elements.recipientForm.addEventListener("submit", addRecipient);
     elements.sendProduct.addEventListener("click", sendSelectedProduct);
+    elements.sendTrackedMail.addEventListener("click", sendTrackedMail);
     document.querySelectorAll("[data-trend-view]").forEach(button => button.addEventListener("click", () => {
       document.querySelectorAll("[data-trend-view]").forEach(item => item.classList.toggle("active", item === button));
       const selected = button.dataset.trendView;
