@@ -142,6 +142,9 @@
       elements.watchForm.remove();
     }
     if (automationCard && watchCard) automationCard.after(watchCard);
+    // La distribución se realiza desde el botón del rastreo visible; no se
+    // exponen productos paralelos que duplicaban el envío.
+    elements.deliveryProducts?.closest("section")?.remove();
 
     function normalizeBase(value) {
       return value.trim().replace(/\/+$/, "").replace(/\/api\/bridge$/, "");
@@ -346,6 +349,7 @@
     }
 
     function renderDeliveryRecipients() {
+      if (!elements.deliveryRecipients) return;
       elements.deliveryRecipients.replaceChildren();
       const active = state.recipients.filter(item => item.enabled);
       if (!active.length) { elements.deliveryRecipients.append(createText("p", "Activá al menos un cliente para enviar.", "empty")); return; }
@@ -705,7 +709,7 @@
     byId("btn-ai-analyze").addEventListener("click", analyzeWithAI);
     elements.watchForm.addEventListener("submit", addWatch);
     elements.recipientForm.addEventListener("submit", addRecipient);
-    elements.sendProduct.addEventListener("click", sendSelectedProduct);
+    elements.sendProduct?.addEventListener("click", sendSelectedProduct);
     elements.sendTrackedMail.addEventListener("click", sendTrackedMail);
     document.querySelectorAll("[data-trend-view]").forEach(button => button.addEventListener("click", () => {
       document.querySelectorAll("[data-trend-view]").forEach(item => item.classList.toggle("active", item === button));
