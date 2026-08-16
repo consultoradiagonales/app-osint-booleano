@@ -369,7 +369,11 @@ def build_jobs(config: dict[str, Any], queries: list[str]) -> list[FetchJob]:
             continue
         group_id = str(group.get("id", "catalogo-fuentes")).strip() or "catalogo-fuentes"
         group_name = str(group.get("name", "Catálogo de fuentes")).strip() or "Catálogo de fuentes"
-        for index, scoped_query in enumerate(_source_group_queries(group, " OR ".join(f"({query})" for query in queries)), 1):
+        # El catálogo se acota con la expresión editorial original. Unir todos
+        # los pivotes podía generar URLs de Google News demasiado largas y
+        # devolvía resultados genéricos ajenos al pedido.
+        primary_query = queries[0] if queries else ""
+        for index, scoped_query in enumerate(_source_group_queries(group, primary_query), 1):
             url = (
                 "https://news.google.com/rss/search?q="
                 f"{quote_plus(scoped_query)}&hl={quote_plus(language)}&gl={quote_plus(country)}&ceid={quote_plus(edition)}"

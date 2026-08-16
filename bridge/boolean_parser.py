@@ -85,6 +85,22 @@ TOKEN_RE = re.compile(
 )
 
 
+def normalize_editorial_query(query: str) -> str:
+    """Convierte listas territoriales pegadas como frases en una expresión booleana real.
+
+    Ejemplo: ``"Saladillo: A, B, C"`` pasa a ``("A" OR "B" OR "C")``.
+    Una frase normal entre comillas no se modifica.
+    """
+    def replace(match: re.Match[str]) -> str:
+        values = [value.strip(" \t\r\n,;\"") for value in match.group(1).split(",")]
+        values = [value for value in values if value]
+        if len(values) < 2:
+            return match.group(0)
+        return "(" + " OR ".join(f'"{value.replace(chr(34), "")}"' for value in values) + ")"
+
+    return re.sub(r'"[^"\r\n:]{1,80}:\s*([^"\r\n]+)"', replace, query)
+
+
 @dataclass(frozen=True)
 class Token:
     kind: str

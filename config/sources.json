@@ -186,7 +186,7 @@
       "name": "Catálogo OSINT · fuentes públicas",
       "catalog_path": "config/AGENCIA_DE_NOTICIAS.md",
       "enabled": true,
-      "max_domains_per_query": 12,
+      "max_domains_per_query": 20,
       "exclude_domains": [
         "bing.com",
         "google.com",

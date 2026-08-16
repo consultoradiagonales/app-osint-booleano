@@ -216,8 +216,9 @@
       if (!state.lastRun) return;
       const all = Array.isArray(state.lastRun.results) ? state.lastRun.results : [];
       const total = state.lastRun.total_matched ?? all.length;
-      // Only show top 3 — reader can open the full report for the rest
-      const items = all.slice(0, 3);
+      // El resultado manual es independiente del informe editorial acumulado.
+      // Se muestran hasta 20 para no mezclarlo con alertas de otros rastreos.
+      const items = all.slice(0, 20);
       for (const item of items) {
         const link = document.createElement("a");
         link.href = item.url; link.target = "_blank"; link.rel = "noopener noreferrer";
@@ -244,13 +245,7 @@
       form.querySelector(".btn-save-schedule").addEventListener("click", () => scheduleQuery(form));
       bar.append(btnSched, form);
       elements.results.append(bar);
-      if (total > 3) {
-        const note = document.createElement("a");
-        note.href = "/reports/latest"; note.target = "_blank"; note.rel = "noopener noreferrer";
-        note.className = "ver-todos";
-        note.textContent = `Ver los ${total} resultados completos en el informe →`;
-        elements.results.append(note);
-      }
+      if (total > 20) elements.results.append(createText("p", `Se muestran 20 de ${total} coincidencias de esta búsqueda.`, "empty"));
     }
 
     function renderHighAlerts() {
@@ -672,7 +667,7 @@
     elements.runWatchers.addEventListener("click", runWatchers);
     elements.runQuery.addEventListener("click", runQuery);
     elements.loadSaladilloQuery.addEventListener("click", () => {
-      elements.query.value = '("Lordén" OR "Salomon" OR "Woevich" OR "Mengarielli" OR "Salguero" OR "Leo Bruno" OR "Nacho Bustingorri" OR "Calvella" OR "Lilli" OR "LLA" OR "PRO" OR "UCR" OR "PJ" OR "Intendente" OR "séptima sección electoral") AND ("Osaba" OR "Pareja" OR "Bullrich" OR "Abad" OR "Giuliano" OR "Karina Milei" OR "Macri" OR "Menem" OR "Santilli" OR "Kicillof" OR "IOMA" OR "Giles" OR "Kreplak") AND ("Presidenciales 2027" OR "Candidatos" OR "Galperin" OR "Hadad" OR "Gebbel" OR "Rebord" OR "Cámpora" OR "Máximo Kirchner" OR "Massa" OR "Intendentes conurbano" OR "AMBA")';
+      elements.query.value = '("Lordén" OR "Salomon" OR "Woevich" OR "Mengarielli" OR "Salguero" OR "Leo Bruno" OR "Nacho Bustingorri" OR "Calvella" OR "Lilli" OR "LLA" OR "PRO" OR "UCR" OR "PJ" OR "Intendente" OR "séptima sección electoral") OR ("Osaba" OR "Pareja" OR "Bullrich" OR "Abad" OR "Giuliano" OR "Karina Milei" OR "Macri" OR "Menem" OR "Santilli" OR "Kicillof" OR "IOMA" OR "Giles" OR "Kreplak") OR ("Presidenciales 2027" OR "Candidatos" OR "Galperin" OR "Hadad" OR "Gebbel" OR "Rebord" OR "Cámpora" OR "Máximo Kirchner" OR "Massa" OR "Intendentes conurbano" OR "AMBA")';
       elements.query.focus();
     });
     elements.openReports.addEventListener("click", openReports);

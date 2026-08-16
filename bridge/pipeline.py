@@ -9,7 +9,7 @@ import re
 from typing import Any, Mapping, Sequence
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from .boolean_parser import coverage, discovery_queries, normalize_text, parse
+from .boolean_parser import coverage, discovery_queries, normalize_editorial_query, normalize_text, parse
 from .editorial import classify_editorial_desk, is_editorially_in_scope, is_geopolitical_item
 from .ai import enrich_with_claude
 from .models import Evidence, RunResult, utc_now
@@ -179,9 +179,10 @@ def run_pipeline(
     watch_label: str = "",
 ) -> RunResult:
     started_at = utc_now()
-    root = parse(query)
+    normalized_query = normalize_editorial_query(query)
+    root = parse(normalized_query)
     aliases = aliases or {}
-    pivots = discovery_queries(query, root, aliases, int(source_config.get("max_discovery_queries", 12)))
+    pivots = discovery_queries(normalized_query, root, aliases, int(source_config.get("max_discovery_queries", 12)))
     raw, errors = discover(
         source_config,
         pivots,
