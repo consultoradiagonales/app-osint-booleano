@@ -106,6 +106,10 @@ def _mailing_html(
     logo = _logo_data_uri()
     cards: list[str] = []
     for item in items:
+        level, level_label, level_color, level_background = _alert_level(item)
+        importance = int(item.get("importance", item.get("relevance_score", 0)) or 0)
+        mentions = int(item.get("mentions", 1) or 1)
+        mention_label = "mención" if mentions == 1 else "menciones"
         title = escape(str(item.get("title", "Sin título")))
         url = escape(str(item.get("url", "")), quote=True)
         source = escape(str(item.get("source", "Fuente pública")))
@@ -116,8 +120,9 @@ def _mailing_html(
         links = "".join(f'<a href="{escape(link, quote=True)}" style="color:#003A90;font-weight:700">Otra fuente</a> · ' for link in alternatives)
         cards.append(
             '<tr><td style="padding:0 0 16px">'
-            '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border-left:4px solid #009AFE;background:#F4FBFF">'
-            f'<tr><td style="padding:18px"><div style="font:700 11px Arial,sans-serif;color:#0073BB;text-transform:uppercase">{desk} · {source}</div>'
+            f'<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border-left:5px solid {level_color};background:#F4FBFF">'
+            f'<tr><td style="padding:18px"><div style="margin:0 0 10px"><span style="display:inline-block;background:{level_color};color:#FFFFFF;border-radius:12px;padding:5px 9px;font:800 10px Arial,sans-serif;letter-spacing:.5px">{level_label} · {importance}/100</span> <span style="display:inline-block;background:{level_background};color:{level_color};border:1px solid {level_color};border-radius:12px;padding:4px 8px;font:800 10px Arial,sans-serif">{mentions} {mention_label}</span></div>'
+            f'<div style="font:700 11px Arial,sans-serif;color:#0073BB;text-transform:uppercase">{desk} · {source}</div>'
             f'<h2 style="font:700 19px Arial,sans-serif;line-height:1.25;margin:8px 0"><a href="{url}" style="color:#092743;text-decoration:none">{title}</a></h2>'
             f'<p style="font:15px Arial,sans-serif;line-height:1.5;color:#31566C;margin:8px 0"><b>Bajada:</b> {subtitle}</p>'
             + (f'<p style="font:14px Arial,sans-serif;line-height:1.5;color:#31566C;margin:8px 0"><b>Análisis político:</b> {analysis}</p>' if analysis else '')
@@ -193,6 +198,16 @@ def _importance(item: dict[str, Any], guide_domains: set[str]) -> int:
     return min(score, 100)
 
 
+def _alert_level(item: dict[str, Any]) -> tuple[str, str, str, str]:
+    """Nivel editorial visible en los productos HTML."""
+    score = int(item.get("importance", item.get("relevance_score", 0)) or 0)
+    if score >= 85:
+        return "critica", "ALERTA CRÍTICA", "#C1432A", "#FDEEEA"
+    if score >= 70:
+        return "alta", "ALERTA ALTA", "#D99A1B", "#FFF6E2"
+    return "seguimiento", "EN SEGUIMIENTO", "#1F8A4C", "#EAF7EF"
+
+
 def _day_label(day_str: str) -> str:
     try:
         dt = datetime.strptime(day_str, "%Y-%m-%d")
@@ -211,6 +226,7 @@ def _logo_tag() -> str:
 def _cable_card(item: dict[str, Any]) -> str:
     importance = item.get("importance", item.get("relevance_score", 0))
     mentions = int(item.get("mentions", 1) or 1)
+    level, level_label, _, _ = _alert_level(item)
     source = escape(str(item.get("source", "Fuente pública")))
     title = escape(str(item.get("title", "Sin título")))
     subtitle = escape(str(item.get("ai_summary") or item.get("subtitle") or item.get("summary") or "").strip()[:240])
@@ -230,11 +246,11 @@ def _cable_card(item: dict[str, Any]) -> str:
         if url else title
     )
     return (
-        f"<article data-mentions='{mentions}'>"
+        f"<article class='alert-{level}' data-mentions='{mentions}'>"
         f"<div class='art-head'>"
         + badge
         + f"<div class='art-body'>"
-        f"<p class='tag'>{topic} · IMPORTANCIA {importance}/100 · {source}</p>"
+        f"<p class='tag'><span class='alert-level'>{level_label}</span> {topic} · IMPORTANCIA {importance}/100 · {source}</p>"
         f"<h2>{title_html}</h2>"
         + (f"<h3><b>Bajada:</b> {subtitle}</h3>" if subtitle else "")
         + (f"<p class='summary'>{summary}</p>" if summary and summary != subtitle else "")
@@ -259,6 +275,7 @@ header p{color:#003A90;margin:4px 0;font-size:13px}
 .day-divider h2{font-size:26px;font-weight:900;color:#003A90;margin:0;letter-spacing:-.02em}
 .cables{padding:0 28px 8px}
 article{background:#fff;border-right:3px solid #009AFE;border-bottom:3px solid #009AFE;box-shadow:0 6px 18px #003a9012;padding:16px;margin:10px 0;border-radius:4px}
+article.alert-critica{border-right-color:#C1432A;border-bottom-color:#C1432A}article.alert-alta{border-right-color:#D99A1B;border-bottom-color:#D99A1B}article.alert-seguimiento{border-right-color:#1F8A4C;border-bottom-color:#1F8A4C}
 .art-head{display:flex;gap:12px;align-items:flex-start}
 .art-badge{flex:0 0 auto;background:#003A90;color:#fff;border-radius:10px;padding:6px 12px;text-align:center;min-width:52px;align-self:flex-start}
 .art-mentions{display:block;font-size:24px;font-weight:900;line-height:1}
@@ -271,6 +288,7 @@ article h3{margin:6px 0;color:#157A9E;font-size:13px;font-weight:600}
 .summary{line-height:1.55;font-size:13px;color:#1a3a55;margin:6px 0}
 .analysis{line-height:1.5;font-size:13px;color:#003A90;background:#eef8ff;border-left:3px solid #009AFE;padding:8px;margin:8px 0}
 .tag{color:#C1432A;font:bold 10px Consolas,monospace;letter-spacing:.08em;margin:0 0 4px}
+.alert-level{display:inline-block;background:#003A90;color:#fff;border-radius:10px;padding:3px 6px;font:800 9px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.05em}.alert-critica .alert-level{background:#C1432A}.alert-alta .alert-level{background:#D99A1B}.alert-seguimiento .alert-level{background:#1F8A4C}
 .meta{color:#477086;font-size:12px;margin:6px 0 8px}
 a{color:#003A90;font-weight:700;font-size:13px;text-decoration:none}
 .source-url{font-size:12px;margin:9px 0 0;color:#477086}
