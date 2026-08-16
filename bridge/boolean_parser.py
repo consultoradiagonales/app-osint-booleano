@@ -105,7 +105,18 @@ def normalize_editorial_query(query: str) -> str:
             return match.group(0)
         return "(" + " OR ".join(f'"{value.replace(chr(34), "")}"' for value in values) + ")"
 
-    return re.sub(r'"[^"\r\n:]{1,80}:\s*([^"\r\n]+)"', replace, query)
+    normalized = re.sub(r'"[^"\r\n:]{1,80}:\s*([^"\r\n]+)"', replace, query)
+    # El formato de pedido editorial "Saladillo: ..." AND "Provincia: ..."
+    # suele significar cobertura de cualquiera de los territorios, no que una
+    # única nota deba mencionar a todos. Se convierte sólo esa plantilla.
+    folded = query.casefold()
+    territorial_labels = ("saladillo:", "provincia:", "nación:")
+    if all(label in folded for label in territorial_labels):
+        normalized = re.sub(r"\)\s+AND\s+\(", ") OR (", normalized, flags=re.IGNORECASE)
+        political_context = "(política OR gobierno OR legislatura OR concejo OR elecciones OR candidato OR intendente OR gobernador OR diputado OR senado OR presupuesto OR IOMA)"
+        if not re.search(r"\b(pol[ií]tica|gobierno|legislatura|elecciones|presupuesto)\b", normalized, flags=re.IGNORECASE):
+            normalized = f"({normalized}) AND {political_context}"
+    return normalized
 
 
 @dataclass(frozen=True)

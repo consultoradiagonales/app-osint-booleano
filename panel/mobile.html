@@ -436,10 +436,10 @@
         localStorage.setItem("osintPcUrl", normalizeBase(elements.pcUrl.value));
         const health = await request("/health");
         if (health.ai_used !== false || health.engine !== "deterministic-local") throw new Error("El servicio no acredita el modo determinístico sin IA.");
-        await refreshData();
         setConnected(true);
+        await refreshData();
         setStatus("PC conectada. Motor determinístico sin IA.", "success");
-      }, true);
+      });
     }
 
     async function runWatchers() {
@@ -734,7 +734,7 @@
     } catch { storedUrl = ""; }
     elements.pcUrl.value = storedUrl || sameOrigin;
     elements.token.value = "";
-    updateControls();
+    setConnected(true);
     connect();
   </script>
 </body>
