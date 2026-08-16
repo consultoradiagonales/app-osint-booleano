@@ -71,6 +71,8 @@ class RecipientStore:
 
     def add(self, email: str, name: str = "") -> dict[str, Any]:
         normalized = normalize_email(email)
+        if not name.strip():
+            name = normalized.split("@", 1)[0]
         stamp = datetime.now(timezone.utc).isoformat()
         try:
             with closing(sqlite3.connect(self.path)) as connection:

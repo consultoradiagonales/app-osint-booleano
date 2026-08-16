@@ -63,7 +63,14 @@ def _current_run_html(run: dict[str, Any]) -> str:
         '<h1 style="margin:0;color:#002B54;font:800 27px Arial,sans-serif">Resultados del rastreo</h1>'
         f'<p style="margin:9px 0 0;color:#31566C;font:13px Arial,sans-serif">{len(results)} nota(s) · Actualizado {generated}</p>'
         '</td></tr><tr><td style="padding:20px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0">'
-        + ''.join(cards) + '</table></td></tr></table></td></tr></table></body></html>'
+        + ''.join(cards)
+        + '</table></td></tr><tr><td style="padding:22px 20px;background:#041B2C;color:#D7E8F3;text-align:center;font:13px Arial,sans-serif">'
+          '<p style="margin:0 0 13px;font-weight:800;color:#fff">Consultora Diagonales</p>'
+          '<a href="https://www.consultoradiagonales.com.ar" style="display:inline-block;margin:3px 4px;padding:9px 13px;border-radius:18px;background:#009AFE;color:#fff;text-decoration:none;font-weight:800">🌐 Web</a>'
+          '<a href="https://wa.me/5492216765720" style="display:inline-block;margin:3px 4px;padding:9px 13px;border-radius:18px;border:1px solid #76B6D4;color:#fff;text-decoration:none;font-weight:800">💬 WhatsApp</a>'
+          '<a href="mailto:info.consultoradiagonales@gmail.com?subject=Suscripci%C3%B3n%20a%20cables" style="display:inline-block;margin:3px 4px;padding:9px 13px;border-radius:18px;background:#009AFE;color:#fff;text-decoration:none;font-weight:800">✉️ Suscribirme</a>'
+          '<p style="margin:14px 0 0;color:#9FC1D4;font-size:11px">© 2026 Consultora Diagonales · La Plata · Buenos Aires</p>'
+          '</td></tr></table></td></tr></table></body></html>'
     )
 
 
