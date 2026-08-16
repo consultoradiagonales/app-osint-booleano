@@ -62,12 +62,46 @@ def _is_geopolitical(item: dict[str, Any]) -> bool:
     return str(item.get("desk", "")).casefold() == "geopolítica" or classify_editorial_desk(item) == "Geopolítica"
 
 
+def _bajada(item: dict[str, Any], limit: int = 240) -> str:
+    """Devuelve solo la bajada: el título es un campo separado y no consume caracteres."""
+    value = str(item.get("ai_summary") or item.get("subtitle") or item.get("summary") or "").strip()
+    title = re.sub(r"\s+", " ", str(item.get("title") or "")).strip()
+    compact = re.sub(r"\s+", " ", value).strip()
+    source = re.sub(r"\s+", " ", str(item.get("source") or "")).strip()
+    prefixes = [title, title.split(" - ", 1)[0] if " - " in title else "", source]
+    for prefix in sorted({prefix for prefix in prefixes if len(prefix) > 3}, key=len, reverse=True):
+        if compact.casefold().startswith(prefix.casefold()):
+            compact = compact[len(prefix):].lstrip(" \t\r\n:–—-|.")
+    return compact[:limit].rstrip()
+
+
+def _article_date(item: dict[str, Any]) -> tuple[str, str]:
+    """Fecha visible para que el lector pueda evaluar la vigencia de cada nota."""
+    raw = str(item.get("published_at") or "").strip()
+    label = "Publicado"
+    if not raw:
+        raw = str(item.get("created_at") or "").strip()
+        label = "Detectado"
+    if not raw:
+        return "Fecha no informada", ""
+    for parser in (
+        lambda value: datetime.fromisoformat(value.replace("Z", "+00:00")),
+        lambda value: datetime.strptime(value, "%d/%m/%Y %H:%M:%S"),
+        lambda value: datetime.strptime(value, "%d/%m/%Y"),
+    ):
+        try:
+            return label, parser(raw).strftime("%d/%m/%Y · %H:%M")
+        except ValueError:
+            continue
+    return label, raw
+
+
 def _rss_xml(items: list[dict[str, Any]], generated_at: datetime, *, title: str, description: str, landing_path: str) -> str:
     entries: list[str] = []
     for item in items:
         item_title = str(item.get("title", "Sin título"))
         url = str(item.get("url", "")).strip()
-        subtitle = str(item.get("ai_summary") or item.get("subtitle") or item.get("summary") or "").strip()[:240]
+        subtitle = _bajada(item)
         analysis = str(item.get("political_analysis") or "").strip()[:240]
         alternatives = [str(value).strip() for value in item.get("alternate_urls", []) if str(value).strip()]
         item_description = subtitle + (f"\n\nAnálisis político: {analysis}" if analysis else "")
@@ -110,21 +144,24 @@ def _mailing_html(
         importance = int(item.get("importance", item.get("relevance_score", 0)) or 0)
         mentions = int(item.get("mentions", 1) or 1)
         mention_label = "mención" if mentions == 1 else "menciones"
+        date_label, article_date = _article_date(item)
         title = escape(str(item.get("title", "Sin título")))
         url = escape(str(item.get("url", "")), quote=True)
         source = escape(str(item.get("source", "Fuente pública")))
         desk = escape(str(item.get("topic", "Política y economía")))
-        subtitle = escape(str(item.get("ai_summary") or item.get("subtitle") or item.get("summary") or "").strip()[:240])
+        subtitle = escape(_bajada(item))
         analysis = escape(str(item.get("political_analysis") or "").strip()[:240])
         alternatives = [str(value).strip() for value in item.get("alternate_urls", []) if str(value).strip()]
         links = "".join(f'<a href="{escape(link, quote=True)}" style="color:#003A90;font-weight:700">Otra fuente</a> · ' for link in alternatives)
+        bajada_html = f'<p style="font:15px Arial,sans-serif;line-height:1.5;color:#31566C;margin:8px 0"><b>Bajada:</b> {subtitle}</p>' if subtitle else ""
         cards.append(
             '<tr><td style="padding:0 0 16px">'
             f'<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border-left:5px solid {level_color};background:#F4FBFF">'
             f'<tr><td style="padding:18px"><div style="margin:0 0 10px"><span style="display:inline-block;background:{level_color};color:#FFFFFF;border-radius:12px;padding:5px 9px;font:800 10px Arial,sans-serif;letter-spacing:.5px">{level_label} · {importance}/100</span> <span style="display:inline-block;background:{level_background};color:{level_color};border:1px solid {level_color};border-radius:12px;padding:4px 8px;font:800 10px Arial,sans-serif">{mentions} {mention_label}</span></div>'
             f'<div style="font:700 11px Arial,sans-serif;color:#0073BB;text-transform:uppercase">{desk} · {source}</div>'
+            f'<div style="font:12px Arial,sans-serif;color:#477086;margin:6px 0 0">{date_label}: {escape(article_date)}</div>'
             f'<h2 style="font:700 19px Arial,sans-serif;line-height:1.25;margin:8px 0"><a href="{url}" style="color:#092743;text-decoration:none">{title}</a></h2>'
-            f'<p style="font:15px Arial,sans-serif;line-height:1.5;color:#31566C;margin:8px 0"><b>Bajada:</b> {subtitle}</p>'
+            + bajada_html
             + (f'<p style="font:14px Arial,sans-serif;line-height:1.5;color:#31566C;margin:8px 0"><b>Análisis político:</b> {analysis}</p>' if analysis else '')
             + f'<p style="font:13px Arial,sans-serif;margin:12px 0 0"><a href="{url}" style="color:#003A90;font-weight:800">Abrir nota →</a> {links}</p>'
             '</td></tr></table></td></tr>'
@@ -227,9 +264,10 @@ def _cable_card(item: dict[str, Any]) -> str:
     importance = item.get("importance", item.get("relevance_score", 0))
     mentions = int(item.get("mentions", 1) or 1)
     level, level_label, _, _ = _alert_level(item)
+    date_label, article_date = _article_date(item)
     source = escape(str(item.get("source", "Fuente pública")))
     title = escape(str(item.get("title", "Sin título")))
-    subtitle = escape(str(item.get("ai_summary") or item.get("subtitle") or item.get("summary") or "").strip()[:240])
+    subtitle = escape(_bajada(item))
     summary = escape(str(item.get("summary", "")))
     political_analysis = escape(str(item.get("political_analysis", "")))
     url = escape(str(item.get("url", "")), quote=True)
@@ -251,6 +289,7 @@ def _cable_card(item: dict[str, Any]) -> str:
         + badge
         + f"<div class='art-body'>"
         f"<p class='tag'><span class='alert-level'>{level_label}</span> {topic} · IMPORTANCIA {importance}/100 · {source}</p>"
+        f"<p class='article-date'>{date_label}: {escape(article_date)}</p>"
         f"<h2>{title_html}</h2>"
         + (f"<h3><b>Bajada:</b> {subtitle}</h3>" if subtitle else "")
         + (f"<p class='summary'>{summary}</p>" if summary and summary != subtitle else "")
@@ -290,6 +329,7 @@ article h3{margin:6px 0;color:#157A9E;font-size:13px;font-weight:600}
 .tag{color:#C1432A;font:bold 10px Consolas,monospace;letter-spacing:.08em;margin:0 0 4px}
 .alert-level{display:inline-block;background:#003A90;color:#fff;border-radius:10px;padding:3px 6px;font:800 9px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.05em}.alert-critica .alert-level{background:#C1432A}.alert-alta .alert-level{background:#D99A1B}.alert-seguimiento .alert-level{background:#1F8A4C}
 .meta{color:#477086;font-size:12px;margin:6px 0 8px}
+.article-date{color:#477086;font-size:12px;margin:4px 0 7px}
 a{color:#003A90;font-weight:700;font-size:13px;text-decoration:none}
 .source-url{font-size:12px;margin:9px 0 0;color:#477086}
 .empty{color:#477086;padding:16px 28px;font-style:italic}

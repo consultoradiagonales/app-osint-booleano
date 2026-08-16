@@ -161,6 +161,9 @@ def score_item(
         item.confidence = "baja"
     if not item.subtitle:
         summary = re.sub(r"\s+", " ", item.summary).strip()
+        title = re.sub(r"\s+", " ", item.title).strip()
+        if title and summary.casefold().startswith(title.casefold()):
+            summary = summary[len(title):].lstrip(" \t\r\n:–—-|.")
         sentence = re.split(r"(?<=[.!?])\s+", summary, maxsplit=1)[0] if summary else ""
         item.subtitle = sentence[:240] or f"{item.source} · {item.mentions} mención(es)"
 
