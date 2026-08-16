@@ -612,7 +612,6 @@ def make_handler(app: BridgeApp):
                             self.relevance_score = d.get("relevance_score", 0)
                             self.url = d.get("url", "")
 
-                    from datetime import datetime
                     fake_items = [_FakeItem(a) for a in alerts]
                     date_str = datetime.now().strftime("%d/%m/%Y %H:%M")
                     subject = f"CABLE DE NOTICIAS · {date_str}"
@@ -755,7 +754,6 @@ def make_handler(app: BridgeApp):
                     if not selected_run:
                         self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "No hay rastreos recientes para enviar"})
                         return
-                    from datetime import datetime
                     results = selected_run.get("results", [])
                     total = selected_run.get("total_matched", len(results))
                     date_str = datetime.now().strftime("%d/%m/%Y %H:%M")
