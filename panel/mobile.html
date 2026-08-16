@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#020b0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OSINT–BOOLEANO">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Control móvil OSINT–BOOLEANO</title>
+  <style>
+    :root{color-scheme:dark;--bg:#020b0f;--panel:#061820;--panel2:#08242d;--cyan:#00e5ff;--cyan2:#57f2ff;--ink:#eaffff;--muted:#7fb1ba;--line:#116071;--good:#54f3ad;--bad:#ff6f7f;--warn:#ffd166}
+    *{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#0a4050 0,#031118 35%,var(--bg) 65%);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.shell{width:min(820px,calc(100% - 24px));margin:auto;padding:max(14px,env(safe-area-inset-top)) 0 max(48px,env(safe-area-inset-bottom))}.topbar{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:8px 2px 18px}.brand-mark{width:44px;height:44px;border:1px solid var(--cyan);border-radius:50%;display:grid;place-items:center;box-shadow:0 0 18px #00e5ff44;position:relative}.brand-mark:before,.brand-mark:after{content:"";position:absolute;width:30px;height:1px;background:#00e5ff66}.brand-mark:after{transform:rotate(90deg)}.brand-mark span{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}.eyebrow,.kicker{margin:0;color:var(--cyan);font:700 10px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.18em}.topbar h1{font-size:16px;margin:4px 0 0}.signal{font:700 9px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);border:1px solid #24505a;border-radius:99px;padding:8px;white-space:nowrap}.signal i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#7a8f94;margin-right:6px}.signal.online{color:var(--good);border-color:#27805c}.signal.online i{background:var(--good);box-shadow:0 0 8px var(--good)}.signal.offline{color:var(--bad);border-color:#7b3540}.signal.offline i{background:var(--bad)}.card{background:linear-gradient(145deg,#08232cdd,#041219ee);border:1px solid #0e5362;border-radius:20px;padding:20px;box-shadow:0 12px 36px #0008,inset 0 1px #ffffff08;margin-bottom:12px}.hero{min-height:230px;display:grid;grid-template-columns:1fr 220px;align-items:center;overflow:hidden;position:relative}.hero h2{font-size:clamp(30px,7vw,52px);line-height:.98;letter-spacing:-.05em;margin:13px 0}.intro{color:#a6cbd1;line-height:1.55;max-width:500px}.radar{width:190px;aspect-ratio:1;border-radius:50%;justify-self:end;position:relative;background:repeating-radial-gradient(circle,#00e5ff00 0 29px,#00e5ff2d 30px 31px),linear-gradient(90deg,transparent 49.7%,#00e5ff30 50%,transparent 50.3%),linear-gradient(0deg,transparent 49.7%,#00e5ff30 50%,transparent 50.3%);border:1px solid #00e5ff77;box-shadow:0 0 45px #00e5ff24,inset 0 0 35px #00e5ff16}.sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,#00e5ff00 0 74%,#00e5ff44 92%,#00e5ff 100%);animation:sweep 4s linear infinite}.blip{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}.blip.one{left:30%;top:26%}.blip.two{right:22%;top:48%}.blip.three{left:46%;bottom:20%}@keyframes sweep{to{transform:rotate(360deg)}}.section-head{display:flex;justify-content:space-between;align-items:start;gap:12px}.section-head h2,.card>h2{margin:5px 0 15px;font-size:22px}.secure,.counter{font:700 9px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--good);border:1px solid #2a7959;border-radius:99px;padding:7px}.connection label{display:block;color:#91bdc5;font-size:12px;margin:10px 0}input,textarea{display:block;width:100%;margin-top:6px;background:#020d12;border:1px solid #185d69;border-radius:11px;color:#eaffff;padding:13px;font:500 14px ui-monospace,SFMono-Regular,Consolas,monospace;outline:none}input:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #00e5ff18}textarea{resize:vertical;line-height:1.5}.primary,.secondary,.pulse-button,.tiny{border:0;border-radius:12px;font-weight:800;cursor:pointer;min-height:46px}.primary{width:100%;background:var(--cyan);color:#001217;margin-top:8px}.secondary{background:#0a3540;color:var(--cyan2);border:1px solid #17798b;padding:0 16px}.primary:disabled,.secondary:disabled,.pulse-button:disabled,.tiny:disabled{opacity:.4;cursor:wait}.status{font-size:12px;color:#8fcbd3;min-height:18px;margin:12px 0 0}.status.error{color:var(--bad)}.status.success{color:var(--good)}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{margin:0;display:grid;gap:3px}.metric span,.metric small{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.metric strong{font:800 25px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--cyan)}.action-card{display:grid;grid-template-columns:1fr auto;align-items:center;gap:20px}.action-card h2{margin:7px 0}.action-card p:last-child{color:var(--muted);font-size:13px;line-height:1.5}.pulse-button{width:118px;aspect-ratio:1;border-radius:50%;background:#00dff5;color:#002229;box-shadow:0 0 0 9px #00e5ff10,0 0 35px #00e5ff55}.pulse-button span{display:block;font-size:22px;margin-bottom:4px}.query-card .secondary{width:100%;margin-top:10px}.result-list{display:grid;gap:7px;margin-top:14px}.result-list a{display:grid;gap:4px;color:var(--ink);text-decoration:none;background:#031118;padding:11px;border-left:2px solid var(--cyan);border-radius:7px}.result-list strong{font-size:12px;line-height:1.35}.result-list span{font-size:10px;color:var(--muted)}.recipient-form{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.recipient-form input{margin:0}.recipients{display:grid;gap:7px;margin-top:12px}.recipient{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;background:#031219;padding:10px;border-radius:9px}.recipient>.dot{width:8px;height:8px;background:#62777a;border-radius:50%}.recipient>.dot.active{background:var(--good);box-shadow:0 0 8px var(--good)}.recipient .identity{display:grid;min-width:0}.recipient strong{font-size:12px}.recipient small{font-size:10px;color:var(--muted);overflow-wrap:anywhere}.recipient-actions{display:flex;gap:5px}.tiny{min-height:32px;border:1px solid #1d6876;background:#082b34;color:var(--cyan2);padding:0 9px;font-size:10px}.tiny.danger{color:#ff9da8;border-color:#713641;background:#281118}.history-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;border-top:1px solid #144651;padding:10px 0}.history-row span{font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.history-row strong{color:var(--cyan)}.empty{color:var(--muted);font-size:12px}.install-tip{font-size:11px;color:var(--muted);line-height:1.55;padding:0 4px 14px}footer{display:grid;gap:7px;text-align:center;padding:28px 12px;color:var(--muted)}footer b{color:var(--cyan);letter-spacing:.15em}footer span{font-size:11px}footer small{font-size:10px;line-height:1.5}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .watch-form{display:grid;grid-template-columns:1fr 2fr 74px 84px auto;gap:8px}.watch-form input{margin:0}.watch-form .secondary{min-width:96px}.watches{display:grid;gap:7px;margin-top:12px}.watch-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;background:#031219;padding:10px;border-radius:9px}.watch-row>.dot{width:8px;height:8px;background:#62777a;border-radius:50%}.watch-row>.dot.active{background:var(--good);box-shadow:0 0 8px var(--good)}.watch-main{display:grid;min-width:0}.watch-row strong{font-size:12px}.watch-row small{font-size:10px;color:var(--muted);overflow-wrap:anywhere}.watch-actions{display:flex;gap:5px}
+    .radar{display:none}.mention-chart{height:210px;display:flex;align-items:flex-end;justify-content:flex-end;gap:8px;padding:24px 6px 28px;overflow:hidden}.mention-bar{width:24px;min-height:8px;position:relative;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#ff6f7f,#00e5ff);box-shadow:0 0 18px #00e5ff33}.mention-bar b{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font:800 10px Consolas,monospace;color:#fff}.mention-bar span{position:absolute;bottom:-25px;left:50%;width:56px;transform:translateX(-50%) rotate(-35deg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 8px Consolas,monospace;color:var(--muted)}.high-alerts{display:grid;gap:10px}.high-alert{background:#031118;border:1px solid #173e49;border-left:4px solid var(--bad);border-radius:10px;padding:14px}.high-alert .tag{color:#ff8d99;font:800 9px Consolas,monospace;letter-spacing:.12em}.high-alert h3{font-size:16px;margin:6px 0}.high-alert h4{font-size:12px;line-height:1.45;color:#a7e4e9;margin:7px 0}.high-alert p{font-size:12px;line-height:1.55;color:#a6cbd1;margin:7px 0}.high-alert a{color:var(--cyan);font-size:11px;font-weight:800;text-decoration:none}.report-actions{display:flex;gap:8px;flex-wrap:wrap}.report-path{font:11px/1.5 Consolas,monospace;color:var(--muted);overflow-wrap:anywhere;margin-top:10px}
+    body{background:radial-gradient(circle at 75% 12%,#087fc4 0,transparent 33%),linear-gradient(145deg,#002b54 0%,#003a70 52%,#00528f 100%);color:#092743}.shell{margin:22px auto;background:rgba(248,251,253,.97);border-radius:20px;padding:16px 22px 30px;box-shadow:0 22px 65px #001b35aa;border-top:6px solid #6ED5FF}.topbar{position:sticky;top:0;z-index:4;margin:-16px -22px 18px;padding:14px 22px;background:linear-gradient(100deg,#B7E6FF,#6ED5FF 58%,#009AFE);border-radius:14px 14px 0 0}.cd-logo{width:180px;max-height:62px;object-fit:contain;object-position:left center}.eyebrow{color:#003A90}.topbar h1{color:#092743}.card{background:#fff;color:#092743;border:0;border-right:3px solid #009AFE;border-bottom:3px solid #009AFE;border-radius:4px;box-shadow:0 10px 24px #003a9020}.section-head h2,.card>h2,.action-card h2{color:#003A90}.kicker{color:#003A90}.metric span,.metric small,.action-card p:last-child,.empty,.report-path,.history-row span{color:#477086}.metric strong,.high-alert a{color:#009AFE}.high-alert{background:#f4fbff;border:0;border-right:3px solid #C1432A;border-bottom:3px solid #C1432A;color:#092743}.high-alert h4,.high-alert p{color:#31566c}.high-alert .tag{color:#C1432A}input,textarea{background:#f4fbff;color:#092743;border:1px solid #78bfe8}.recipient,.watch-row,.result-list a{background:#f4fbff;color:#092743}.secondary{background:#003A90;color:#fff;border:0}.primary,.pulse-button{background:#009AFE;color:#fff}.secure,.counter{color:#1F8A4C;border-color:#1F8A4C}footer{margin:20px -22px -30px;padding:25px;background:#041B2C;color:#fff}.mention-chart,.mention-bar{display:none!important}
+    .verify-note{background:#fff3cd;border-left:4px solid #C1432A;border-radius:6px;padding:10px 14px;font-size:12px;color:#7a2e00;margin:0 0 12px;line-height:1.5}.result-list .ver-todos{display:block;text-align:center;margin-top:8px;padding:10px;background:#f4fbff;border:1px dashed #78bfe8;border-radius:8px;font-size:12px;color:#003A90;font-weight:700;text-decoration:none}.schedule-bar{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}.schedule-bar .btn-schedule{background:var(--panel2);border:1px solid var(--cyan);color:var(--cyan);border-radius:6px;padding:8px 14px;font-size:12px;cursor:pointer;font-weight:600}.schedule-form{margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px;display:none;flex-direction:column;gap:8px}.schedule-form.open{display:flex}.schedule-form label{font-size:12px;color:var(--muted)}.schedule-form input[type=text]{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:5px;padding:7px 10px;font-size:13px;box-sizing:border-box}.schedule-hours{display:flex;gap:8px;flex-wrap:wrap}.schedule-hours label{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--ink);cursor:pointer}.schedule-form-btns{display:flex;gap:8px}.schedule-form-btns button{flex:1;padding:8px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}.btn-save-schedule{background:var(--good);color:#002;border:none}.btn-cancel-schedule{background:transparent;border:1px solid var(--line);color:var(--muted)}
+    .trend-tabs{display:flex;gap:7px;margin:5px 0 14px}.trend-tab{border:0;border-radius:99px;padding:9px 15px;background:#dceefa;color:#003A90;font-weight:800;cursor:pointer}.trend-tab.active{background:#003A90;color:#fff}.trend-view[hidden]{display:none}.trend-timeline{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:10px;overflow-x:auto;padding:4px 2px 14px;scroll-snap-type:x proximity}.trend-column{scroll-snap-align:start;background:#f4fbff;border-right:3px solid #009AFE;border-bottom:3px solid #009AFE;padding:13px;min-height:180px}.trend-column h3{margin:0 0 10px;color:#003A90;font-size:14px}.trend-column ol{margin:0;padding-left:25px}.trend-column li{padding:5px 0;color:#092743;font-size:12px}.trend-column a{color:#092743;text-decoration:none;font-weight:650}.trend-cloud{display:flex;align-items:center;justify-content:center;align-content:center;flex-wrap:wrap;gap:8px;min-height:240px;padding:20px;background:#f4fbff}.trend-word{color:#003A90;text-decoration:none;font-weight:800;line-height:1}.trend-table{width:100%;border-collapse:collapse}.trend-table th{background:#003A90;color:#fff;text-align:left;padding:9px}.trend-table td{padding:9px;border-bottom:1px solid #b7dcef;font-size:12px}.trend-table a{color:#003A90;font-weight:700;text-decoration:none}.filter-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.filter-form>label{font-size:12px;color:#31566c}.filter-form select,.filter-form input{width:100%;margin-top:6px;background:#f4fbff;color:#092743;border:1px solid #78bfe8;border-radius:10px;padding:12px}.picker{background:#f4fbff;border:1px solid #78bfe8;border-radius:10px;padding:12px}.picker summary{cursor:pointer;color:#003A90;font-weight:800}.picker summary span{float:right;color:#477086;font-size:11px}.picker-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.picker-grid label{display:flex;align-items:center;gap:7px;font-size:12px}.picker-grid input{width:auto;margin:0}.picker-grid.hours{grid-template-columns:repeat(6,1fr)}.filter-form>button{grid-column:1/-1}
+    @media(max-width:720px){.watch-form{grid-template-columns:1fr 1fr}.watch-form .watch-query{grid-column:1/-1}.watch-form .secondary{grid-column:1/-1}}
+    @media(max-width:620px){.shell{width:min(100% - 16px,820px);padding-top:max(8px,env(safe-area-inset-top))}.topbar{grid-template-columns:auto 1fr}.signal{grid-column:1/-1;text-align:center}.hero{grid-template-columns:1fr;min-height:420px}.mention-chart{height:190px;justify-content:center}.hero>div:first-child{z-index:1}.metrics{gap:6px}.metric{padding:14px}.metric strong{font-size:21px}.action-card{grid-template-columns:1fr auto}.pulse-button{width:92px}.recipient-form,.watch-form{grid-template-columns:1fr}.recipient-form .secondary,.watch-form .secondary,.watch-form .watch-query{grid-column:auto;width:100%}.recipient,.watch-row{grid-template-columns:auto minmax(0,1fr)}.recipient-actions,.watch-actions{grid-column:2;flex-wrap:wrap}.card{border-radius:16px;padding:17px}}
+    @media(prefers-reduced-motion:reduce){.sweep{animation:none}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <img class="cd-logo" src="/assets/consultora_diagonales_logo.png" alt="Consultora Diagonales">
+      <div><p class="eyebrow">AGENCIA DE NOTICIAS</p><h1>Rastreador OSINT–BOOLEANO</h1></div>
+      <div class="signal" id="signal"><i></i><span>SIN VINCULAR</span></div>
+    </header>
+
+    <section class="card">
+      <div class="section-head"><div><p class="kicker">ARCHIVO DE REDACCIÓN</p><h2>Informes del rastreo</h2></div><span class="secure">MÁXIMO 10</span></div>
+      <div class="report-actions"><button class="secondary protected" id="open-reports" type="button" disabled>Abrir carpeta de informes</button><a class="secondary" id="latest-report" href="/reports/latest" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Abrir último informe</a><a class="secondary" href="/reports/mailing" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Vista de mailing</a><a class="secondary" href="/reports/feed.xml" target="_blank" rel="noopener noreferrer" style="display:grid;place-items:center;text-decoration:none">Feed RSS</a></div>
+      <p class="report-path" id="report-path">La ubicación aparecerá al conectar.</p>
+    </section>
+
+    <section class="card" id="ai-section">
+      <div class="section-head"><div><p class="kicker">INTELIGENCIA ARTIFICIAL · HAIKU</p><h2>Análisis editorial previo al cable</h2></div><span class="secure">DIAGONALES</span></div>
+      <p class="intro" style="font-size:12px;margin:0 0 12px">Claude Haiku analiza las alertas detectadas según los parámetros editoriales de Consultora Diagonales antes de que enviés el cable de noticias.</p>
+      <button class="secondary protected" id="btn-ai-analyze" type="button" disabled>✦ Analizar con IA antes de enviar</button>
+      <div id="ai-result" style="display:none;margin-top:14px;background:#f4fbff;border-left:4px solid #003A90;border-radius:8px;padding:14px;font-size:13px;line-height:1.65;color:#092743;white-space:pre-wrap"></div>
+      <p class="status" id="ai-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="connection card">
+      <div class="section-head"><div><p class="kicker">VINCULACIÓN</p><h2>PC local</h2></div><span class="secure">AUTOMÁTICA</span></div>
+      <input id="pc-url" type="hidden" value="http://127.0.0.1:8765"><input id="token" type="hidden" value="">
+      <button class="primary" id="connect" type="button">Verificar conexión</button>
+      <p class="status" id="status" role="status" aria-live="polite">Conexión local sin clave.</p>
+    </section>
+
+    <section class="metrics">
+      <article class="metric card"><span>Motor</span><strong>LOCAL</strong><small>sin IA</small></article>
+      <article class="metric card"><span>Plan beta</span><strong>3</strong><small>horarios máximos</small></article>
+      <article class="metric card"><span>Última corrida</span><strong id="last-count">—</strong><small>coincidencias</small></article>
+    </section>
+
+    <section class="card query-card">
+      <p class="kicker">BÚSQUEDA MANUAL</p><h2>Consulta puntual para administradores</h2>
+      <p class="intro">Sirve para ejecutar una búsqueda inmediata que no queda programada. AND exige ambos términos, OR acepta cualquiera y NOT excluye.</p>
+      <label class="sr-only" for="query">Consulta booleana</label>
+      <textarea id="query" rows="4" spellcheck="false" placeholder="Escribí una búsqueda puntual"></textarea>
+      <button class="secondary protected" id="run-query" type="button" disabled>Rastrear desde la PC</button>
+      <div class="result-list" id="results"></div>
+    </section>
+
+    <section class="card action-card">
+      <div><p class="kicker">AUTOMATIZACIÓN</p><h2>Ejecutar monitores ahora</h2><p>Procesa UCR y todos los temas configurados en la PC, conserva evidencia y envía solamente alertas nuevas.</p></div>
+      <button class="pulse-button protected" id="run-watchers" type="button" disabled><span>▶</span>EJECUTAR</button>
+    </section>
+
+    <section class="card">
+      <div class="section-head"><div><p class="kicker">DISTRIBUCIÓN RSS</p><h2>Suscriptores de mailing</h2></div><b class="counter" id="recipient-count">0 activos</b></div>
+      <form class="recipient-form" id="recipient-form">
+        <input id="email" type="email" autocomplete="email" placeholder="correo@cliente.com" required aria-label="Correo del destinatario">
+        <input id="recipient-name" autocomplete="name" placeholder="Nombre o cliente" aria-label="Nombre del destinatario">
+        <button class="secondary protected" disabled>Agregar</button>
+      </form>
+      <div class="recipients" id="recipients"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head"><div><p class="kicker">TEMAS RASTREADOS</p><h2>Resultados del rastreo</h2></div><div style="display:flex;gap:8px;align-items:center"><b class="counter" id="high-alert-count">0 artículos</b><button class="secondary" id="sort-alerts" type="button" style="min-height:32px;padding:0 12px;font-size:10px">↓ MENCIONES</button><button class="secondary" id="clear-alerts" type="button" style="min-height:32px;padding:0 12px;font-size:10px;color:var(--bad,#C1432A);border-color:var(--bad,#C1432A)">✕ LIMPIAR</button></div></div>
+      <div class="high-alerts" id="high-alerts"><p class="empty">Conectá la PC para ver los resultados.</p></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head"><div><p class="kicker">PLAN BETA PERSONALIZABLE</p><h2>Elegí territorio, temas y hasta 3 horarios</h2><p class="intro">Los temas se rastrean en todas las fuentes disponibles, no en un medio particular. Las búsquedas adicionales quedan disponibles manualmente para administradores.</p></div><b class="counter" id="watch-count">0 activos</b></div>
+      <form class="watch-form filter-form" id="watch-form">
+        <details class="picker"><summary>Provincias <span id="province-summary">Todo el país</span></summary><div class="picker-grid" id="province-picker"><label><input type="checkbox" value="Nacional" checked> Todo el país</label><label><input type="checkbox" value="Buenos Aires"> Buenos Aires</label><label><input type="checkbox" value="CABA"> CABA</label><label><input type="checkbox" value="Catamarca"> Catamarca</label><label><input type="checkbox" value="Chaco"> Chaco</label><label><input type="checkbox" value="Chubut"> Chubut</label><label><input type="checkbox" value="Córdoba"> Córdoba</label><label><input type="checkbox" value="Corrientes"> Corrientes</label><label><input type="checkbox" value="Entre Ríos"> Entre Ríos</label><label><input type="checkbox" value="Formosa"> Formosa</label><label><input type="checkbox" value="Jujuy"> Jujuy</label><label><input type="checkbox" value="La Pampa"> La Pampa</label><label><input type="checkbox" value="La Rioja"> La Rioja</label><label><input type="checkbox" value="Mendoza"> Mendoza</label><label><input type="checkbox" value="Misiones"> Misiones</label><label><input type="checkbox" value="Neuquén"> Neuquén</label><label><input type="checkbox" value="Río Negro"> Río Negro</label><label><input type="checkbox" value="Salta"> Salta</label><label><input type="checkbox" value="San Juan"> San Juan</label><label><input type="checkbox" value="San Luis"> San Luis</label><label><input type="checkbox" value="Santa Cruz"> Santa Cruz</label><label><input type="checkbox" value="Santa Fe"> Santa Fe</label><label><input type="checkbox" value="Santiago del Estero"> Santiago del Estero</label><label><input type="checkbox" value="Tierra del Fuego"> Tierra del Fuego</label><label><input type="checkbox" value="Tucumán"> Tucumán</label></div></details>
+        <label>Ciudad<input id="watch-city" placeholder="Opcional"></label>
+        <details class="picker"><summary>Temas <span id="topic-summary">Elegí uno o varios</span></summary><div class="picker-grid" id="topic-picker"><label><input type="checkbox" value="Política"> Política</label><label><input type="checkbox" value="Economía"> Economía</label><label><input type="checkbox" value="Educación"> Educación</label><label><input type="checkbox" value="Cultura"> Cultura</label><label><input type="checkbox" value="Salud"> Salud</label><label><input type="checkbox" value="OTRO/S"> OTRO/S</label></div><input id="watch-other" hidden placeholder="Nombre, partido político o temática"></details>
+        <details class="picker"><summary>Horarios <span id="hour-summary">Máximo 3</span></summary><div class="picker-grid hours" id="hour-picker"></div></details>
+        <button class="secondary protected" disabled>Crear rastreo</button>
+      </form>
+      <div class="watches" id="watches"></div>
+    </section>
+
+    <p class="install-tip">iPhone: Compartir → Agregar a inicio. Android: menú ⋮ → Agregar a pantalla principal. La PC debe quedar encendida, conectada a la misma red privada y con el rastreador iniciado.</p>
+    <footer><b>OSINT–BOOLEANO</b><span>Procesamiento en tu PC · datos públicos · sin IA</span><small>No abras el puerto 8765 en el router ni uses este control desde Wi‑Fi pública.</small></footer>
+  </main>
+
+  <script>
+    "use strict";
+    const state = { connected: false, busy: false, watches: [], recipients: [], highAlerts: [], runs: [], reports: null, lastRun: null, sortAlertsByMentions: true };
+    const byId = id => document.getElementById(id);
+    const elements = {
+      pcUrl: byId("pc-url"), token: byId("token"), connect: byId("connect"), status: byId("status"),
+      signal: byId("signal"), lastCount: byId("last-count"), runWatchers: byId("run-watchers"),
+      runQuery: byId("run-query"), query: byId("query"), results: byId("results"),
+      watchForm: byId("watch-form"), provincePicker: byId("province-picker"), provinceSummary: byId("province-summary"), watchCity: byId("watch-city"), watchOther: byId("watch-other"),
+      topicPicker: byId("topic-picker"), topicSummary: byId("topic-summary"), hourPicker: byId("hour-picker"), hourSummary: byId("hour-summary"), watchCount: byId("watch-count"), watches: byId("watches"),
+      recipientForm: byId("recipient-form"), email: byId("email"), recipientName: byId("recipient-name"),
+      recipientCount: byId("recipient-count"), recipients: byId("recipients"),
+      highAlerts: byId("high-alerts"), highAlertCount: byId("high-alert-count"), sortAlerts: byId("sort-alerts"), clearAlerts: byId("clear-alerts"),
+      openReports: byId("open-reports"), latestReport: byId("latest-report"), reportPath: byId("report-path")
+    };
+
+    // El plan de monitores se muestra junto a la automatización, antes de los suscriptores.
+    const automationCard = elements.runWatchers.closest("section");
+    const watchCard = elements.watchForm.closest("section");
+    if (automationCard && watchCard) automationCard.after(watchCard);
+
+    function normalizeBase(value) {
+      return value.trim().replace(/\/+$/, "").replace(/\/api\/bridge$/, "");
+    }
+
+    function setStatus(message, kind = "") {
+      elements.status.textContent = message;
+      elements.status.className = `status ${kind}`.trim();
+    }
+
+    function setConnected(connected) {
+      state.connected = connected;
+      elements.signal.className = `signal ${connected ? "online" : "offline"}`;
+      elements.signal.querySelector("span").textContent = connected ? "PC EN LÍNEA" : "SIN CONEXIÓN";
+      updateControls();
+    }
+
+    function updateControls() {
+      const disabled = state.busy;
+      elements.connect.disabled = disabled;
+      document.querySelectorAll(".protected").forEach(button => { button.disabled = disabled || !state.connected; });
+      elements.connect.textContent = disabled ? "Procesando…" : "Conectar y verificar";
+    }
+
+    async function request(path, options = {}) {
+      const base = normalizeBase(elements.pcUrl.value);
+      const token = elements.token.value.trim();
+      const headers = new Headers(options.headers || {});
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+      if (options.body) headers.set("Content-Type", "application/json");
+      let response;
+      try {
+        response = await fetch(`${base}/api/bridge${path}`, { ...options, headers, cache: "no-store" });
+      } catch (error) {
+        if (location.protocol === "https:" && base.startsWith("http://")) {
+          throw new Error(`El navegador bloqueó la conexión HTTPS→HTTP. Abrí directamente ${base}/mobile desde el celular.`);
+        }
+        throw new Error(`No se pudo alcanzar la PC. Abrí ${base}/api/bridge/health para comprobar red, dirección y firewall.`);
+      }
+      const payload = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        throw new Error("Clave incorrecta o vencida. Copiá la clave actual desde ACCESO_MOVIL.txt en la PC.");
+      }
+      if (!response.ok) throw new Error(payload.error || `Error HTTP ${response.status}`);
+      return payload;
+    }
+
+    function createText(tag, text, className = "") {
+      const node = document.createElement(tag);
+      node.textContent = String(text ?? "");
+      if (className) node.className = className;
+      return node;
+    }
+
+    function renderResults() {
+      elements.results.replaceChildren();
+      if (!state.lastRun) return;
+      const all = Array.isArray(state.lastRun.results) ? state.lastRun.results : [];
+      const total = state.lastRun.total_matched ?? all.length;
+      // Only show top 3 — reader can open the full report for the rest
+      const items = all.slice(0, 3);
+      for (const item of items) {
+        const link = document.createElement("a");
+        link.href = item.url; link.target = "_blank"; link.rel = "noopener noreferrer";
+        link.append(createText("strong", item.title || "Sin título"));
+        link.append(createText("span", `${item.source || "Fuente"} · relevancia ${item.relevance_score ?? 0}/100`));
+        elements.results.append(link);
+      }
+      // Schedule bar
+      const bar = document.createElement("div"); bar.className = "schedule-bar";
+      const btnSched = document.createElement("button"); btnSched.className = "btn-schedule"; btnSched.textContent = "📅 Programar este rastreo";
+      const form = document.createElement("div"); form.className = "schedule-form";
+      form.innerHTML = `
+        <label>Nombre del rastreo<input type="text" class="sched-label" placeholder="Ej: Política provincial"></label>
+        <label>Horarios diarios (hasta 3)</label>
+        <div class="schedule-hours">
+          ${[7,10,12,15,18,20].map(h => `<label><input type="checkbox" value="${h}"> ${String(h).padStart(2,"0")}:00</label>`).join("")}
+        </div>
+        <div class="schedule-form-btns">
+          <button class="btn-save-schedule" type="button">Guardar</button>
+          <button class="btn-cancel-schedule" type="button">Cancelar</button>
+        </div>`;
+      btnSched.addEventListener("click", () => { form.classList.toggle("open"); });
+      form.querySelector(".btn-cancel-schedule").addEventListener("click", () => { form.classList.remove("open"); });
+      form.querySelector(".btn-save-schedule").addEventListener("click", () => scheduleQuery(form));
+      bar.append(btnSched, form);
+      elements.results.append(bar);
+      if (total > 3) {
+        const note = document.createElement("a");
+        note.href = "/reports/latest"; note.target = "_blank"; note.rel = "noopener noreferrer";
+        note.className = "ver-todos";
+        note.textContent = `Ver los ${total} resultados completos en el informe →`;
+        elements.results.append(note);
+      }
+    }
+
+    function renderHighAlerts() {
+      elements.highAlerts.replaceChildren();
+      const all = state.highAlerts;
+      elements.highAlertCount.textContent = `${all.length} artículo${all.length === 1 ? "" : "s"}`;
+      if (!all.length) {
+        elements.highAlerts.append(createText("p", "Sin resultados hoy. Ejecutá un rastreo para ver novedades.", "empty"));
+        return;
+      }
+
+      // Agrupar por watch_label; los sin label van a "Búsqueda manual"
+      const groups = new Map();
+      for (const item of all) {
+        const key = item.watch_label || item.watch_id || "Búsqueda manual";
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(item);
+      }
+
+      // Ordenar artículos dentro de cada grupo
+      const sortFn = (a, b) =>
+        (b.relevance_score || 0) - (a.relevance_score || 0) || (b.mentions || 1) - (a.mentions || 1);
+
+      // Ordenar cada pedido por su hallazgo político más relevante.
+      const sortedGroups = [...groups.entries()].sort(([, a], [, b]) => {
+        const bestA = Math.max(...a.map(i => i.relevance_score || 0));
+        const bestB = Math.max(...b.map(i => i.relevance_score || 0));
+        return bestB - bestA;
+      });
+
+      for (const [groupLabel, items] of sortedGroups) {
+        const section = document.createElement("div");
+        section.style.cssText = "margin-bottom:18px";
+
+        const heading = document.createElement("p");
+        heading.style.cssText = "margin:0 0 8px;font:800 10px ui-monospace,monospace;letter-spacing:.14em;color:var(--cyan,#009AFE)";
+        heading.textContent = groupLabel.toUpperCase();
+        section.append(heading);
+
+        const sorted = [...items].sort(sortFn);
+        for (const item of sorted) {
+          const card = document.createElement("article"); card.className = "high-alert";
+          const mentionsBadge = `${item.mentions || 1} mención${(item.mentions || 1) === 1 ? "" : "es"}`;
+          card.append(createText("span", `${item.source || "Fuente pública"} · ${mentionsBadge}`, "tag"));
+          card.append(createText("h3", item.title || "Sin título"));
+          if (item.subtitle) card.append(createText("h4", item.subtitle));
+          if (item.summary) card.append(createText("p", item.summary));
+          if (item.url) {
+            const link = createText("a", "Abrir fuente directa →");
+            link.href = item.url; link.target = "_blank"; link.rel = "noopener noreferrer";
+            card.append(link);
+          }
+          section.append(card);
+        }
+        elements.highAlerts.append(section);
+      }
+    }
+
+    function renderMentionChart() {
+      return;
+    }
+
+    function renderRecipients() {
+      elements.recipients.replaceChildren();
+      const active = state.recipients.filter(item => item.enabled).length;
+      elements.recipientCount.textContent = `${active} activo${active === 1 ? "" : "s"}`;
+      if (!state.recipients.length) {
+        elements.recipients.append(createText("p", "Todavía no hay suscriptores registrados.", "empty"));
+        return;
+      }
+      for (const item of state.recipients) {
+        const row = document.createElement("div"); row.className = "recipient";
+        const dot = document.createElement("i"); dot.className = `dot ${item.enabled ? "active" : ""}`;
+        const identity = document.createElement("span"); identity.className = "identity";
+        identity.append(createText("strong", item.name || "Sin nombre"));
+        identity.append(createText("small", item.email));
+        const actions = document.createElement("span"); actions.className = "recipient-actions";
+        const toggle = createText("button", item.enabled ? "Pausar" : "Activar", "tiny");
+        toggle.type = "button"; toggle.disabled = state.busy;
+        toggle.addEventListener("click", () => updateRecipient(item.id, !item.enabled));
+        const remove = createText("button", "Eliminar", "tiny danger"); remove.type = "button"; remove.disabled = state.busy;
+        remove.addEventListener("click", () => deleteRecipient(item.id, item.email));
+        actions.append(toggle, remove);
+        row.append(dot, identity, actions);
+        elements.recipients.append(row);
+      }
+    }
+
+    function renderWatches() {
+      elements.watches.replaceChildren();
+      const active = state.watches.filter(item => item.enabled).length;
+      elements.watchCount.textContent = `${active} activo${active === 1 ? "" : "s"}`;
+      if (!state.watches.length) {
+        elements.watches.append(createText("p", "Todavía no hay consultas programadas.", "empty"));
+        return;
+      }
+      for (const item of state.watches) {
+        const row = document.createElement("div"); row.className = "watch-row";
+        const dot = document.createElement("i"); dot.className = `dot ${item.enabled ? "active" : ""}`;
+        const main = document.createElement("span"); main.className = "watch-main";
+        const hours = (item.schedule_hours || [7,15,20]).map(hour => `${String(hour).padStart(2,"0")}:00`).join(" · ");
+        main.append(createText("strong", item.label));
+        const provinces = item.provinces || [item.province || "Nacional"];
+        const custom = item.custom_terms ? `: ${item.custom_terms}` : "";
+        main.append(createText("small", `${provinces.join(", ")}${item.city ? ` · ${item.city}` : ""} · ${(item.topics || ["Política"]).join(", ")}${custom} · ${hours}`));
+        const actions = document.createElement("span"); actions.className = "watch-actions";
+        const toggle = createText("button", item.enabled ? "Pausar" : "Activar", "tiny");
+        toggle.type = "button"; toggle.disabled = state.busy;
+        toggle.addEventListener("click", () => updateWatch(item.id, !item.enabled));
+        const remove = createText("button", "Eliminar", "tiny danger");
+        remove.type = "button"; remove.disabled = state.busy;
+        remove.addEventListener("click", () => deleteWatch(item.id, item.label));
+        actions.append(toggle, remove);
+        row.append(dot, main, actions);
+        elements.watches.append(row);
+      }
+    }
+
+    function hoursSinceMidnight() {
+      const now = new Date();
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      return Math.max(1, Math.ceil((now - midnight) / 3600000));
+    }
+
+    async function refreshData() {
+      const hours = hoursSinceMidnight();
+      const [watchData, recipientData, alertData, reportData, runData] = await Promise.all([
+        request("/watches"), request("/recipients"),
+        request(`/alerts/high?hours=${hours}&limit=500`), request("/reports"), request("/runs?limit=10")
+      ]);
+      state.watches = Array.isArray(watchData.watches) ? watchData.watches : [];
+      state.recipients = Array.isArray(recipientData.recipients) ? recipientData.recipients : [];
+      state.highAlerts = Array.isArray(alertData.alerts) ? alertData.alerts : [];
+      state.reports = reportData;
+      state.runs = Array.isArray(runData) ? runData : [];
+      state.lastRun = state.runs.find(item => item.watch_id === "manual" || item.watch_label === "Búsqueda manual") || state.runs[0] || null;
+      elements.lastCount.textContent = state.lastRun ? (state.lastRun.total_matched ?? 0) : "—";
+      elements.reportPath.textContent = reportData.folder || "Carpeta de informes no disponible";
+      elements.latestReport.hidden = !reportData.latest_exists;
+      renderWatches(); renderRecipients(); renderResults(); renderHighAlerts();
+    }
+
+    async function withBusy(operation, disconnectOnError = false) {
+      if (state.busy) return;
+      state.busy = true; updateControls(); renderWatches(); renderRecipients();
+      try { await operation(); }
+      catch (error) {
+        if (disconnectOnError) setConnected(false);
+        setStatus(error instanceof Error ? error.message : "Operación fallida", "error");
+      }
+      finally { state.busy = false; updateControls(); renderWatches(); renderRecipients(); }
+    }
+
+    async function connect() {
+      await withBusy(async () => {
+        if (!/^https?:\/\//i.test(elements.pcUrl.value.trim())) throw new Error("La dirección debe comenzar con http:// o https://");
+        setStatus("Conectando con la PC…");
+        localStorage.setItem("osintPcUrl", normalizeBase(elements.pcUrl.value));
+        const health = await request("/health");
+        if (health.ai_used !== false || health.engine !== "deterministic-local") throw new Error("El servicio no acredita el modo determinístico sin IA.");
+        await refreshData();
+        setConnected(true);
+        setStatus("PC conectada. Motor determinístico sin IA.", "success");
+      }, true);
+    }
+
+    async function runWatchers() {
+      await withBusy(async () => {
+        setStatus("Ejecutando monitores en la PC…");
+        const result = await request("/watch/run", { method: "POST", body: "{}" });
+        const watchers = Array.isArray(result.watchers) ? result.watchers : [];
+        const fresh = watchers.reduce((sum, item) => sum + Number(item.new_items || 0), 0);
+        const matched = watchers.reduce((sum, item) => sum + Number(item.matched || 0), 0);
+        await refreshData();
+        setStatus(`Monitoreo terminado: ${matched} coincidencia(s), ${fresh} alerta(s) nueva(s).`, "success");
+      });
+    }
+
+    async function scheduleQuery(form) {
+      const label = form.querySelector(".sched-label").value.trim();
+      if (!label) { setStatus("Escribí un nombre para el rastreo.", "error"); return; }
+      const hours = [...form.querySelectorAll(".schedule-hours input:checked")].map(i => Number(i.value));
+      if (!hours.length || hours.length > 3) { setStatus("Elegí entre 1 y 3 horarios.", "error"); return; }
+      const query = elements.query.value.trim();
+      const id = label.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").slice(0,40);
+      await withBusy(async () => {
+        await request("/watches", { method: "POST", body: JSON.stringify({ id, label, query, schedule_hours: hours, enabled: true, since_days: 1, max_results: 100 }) });
+        await refreshData();
+        form.classList.remove("open");
+        setStatus(`Rastreo "${label}" programado para ${hours.map(h => String(h).padStart(2,"0")+":00").join(" · ")}.`, "success");
+      });
+    }
+
+    async function runQuery() {
+      await withBusy(async () => {
+        const query = elements.query.value.trim();
+        if (!query) throw new Error("La consulta booleana está vacía.");
+        setStatus("Rastreando fuentes públicas desde la PC…");
+        const result = await request("/run", { method: "POST", body: JSON.stringify({ query, since_days: 7, max_results: 100 }) });
+        state.lastRun = result;
+        state.runs = [result, ...state.runs.filter(item => item.run_id !== result.run_id)].slice(0, 5);
+        elements.lastCount.textContent = result.total_matched ?? 0;
+        renderResults();
+        setStatus(`Corrida completa: ${result.total_matched ?? 0} coincidencia(s).`, "success");
+      });
+    }
+
+    async function openReports() {
+      await withBusy(async () => {
+        const result = await request("/reports/open", { method: "POST", body: "{}" });
+        elements.reportPath.textContent = result.folder || elements.reportPath.textContent;
+        setStatus("Carpeta de informes abierta en la PC.", "success");
+      });
+    }
+
+    async function addRecipient(event) {
+      event.preventDefault();
+      await withBusy(async () => {
+        const email = elements.email.value.trim();
+        if (!email) throw new Error("Ingresá un correo.");
+        await request("/recipients", { method: "POST", body: JSON.stringify({ email, name: elements.recipientName.value.trim() }) });
+        elements.email.value = ""; elements.recipientName.value = "";
+        await refreshData();
+        setStatus("Suscriptor agregado al Calendar de Consultora Diagonales.", "success");
+      });
+    }
+
+    async function addWatch(event) {
+      event.preventDefault();
+      await withBusy(async () => {
+        const provinces = [...elements.provincePicker.querySelectorAll("input:checked")].map(input => input.value), city = elements.watchCity.value.trim();
+        const topics = [...elements.topicPicker.querySelectorAll("input:checked")].map(input => input.value);
+        const customTerms = elements.watchOther.value.trim();
+        const scheduleHours = [...elements.hourPicker.querySelectorAll("input:checked")].map(input => Number(input.value));
+        if (!provinces.length) throw new Error("Elegí al menos una provincia.");
+        if (!topics.length) throw new Error("Elegí al menos un tema.");
+        if (topics.includes("OTRO/S") && !customTerms) throw new Error("Escribí el nombre, partido político o temática de OTRO/S.");
+        if (!scheduleHours.length || scheduleHours.length > 3) throw new Error("Elegí entre uno y tres horarios.");
+        const quote = value => /\s/.test(value) ? `"${value.replaceAll('"', '')}"` : value;
+        const customParts = customTerms.split(/[,;\n]+/).map(value => value.trim()).filter(Boolean);
+        const searchTopics = [...topics.filter(topic => topic !== "OTRO/S"), ...customParts].map(quote);
+        const topicQuery = searchTopics.length === 1 ? searchTopics[0] : `(${searchTopics.join(" OR ")})`;
+        const places = [city, ...provinces.filter(province => province !== "Nacional")].filter(Boolean).map(quote);
+        const geographyQuery = places.length ? `(${places.join(" OR ")})` : `(Argentina OR argentino OR nacional)`;
+        const exclusions = `(judicial OR judiciales OR juicio OR tribunal OR juez OR fiscalía OR "Donald Trump" OR "Estados Unidos" OR EEUU OR China OR Rusia OR Ucrania OR Israel OR Gaza)`;
+        const query = `${topicQuery} AND ${geographyQuery} NOT ${exclusions}`;
+        const topicLabel = [...topics.filter(topic => topic !== "OTRO/S"), ...customParts].join(", ");
+        const label = `${city || provinces.join(", ")} · ${topicLabel}`;
+        await request("/watches", {
+          method: "POST",
+          body: JSON.stringify({
+            label,
+            query,
+            provinces, city, topics, custom_terms: customTerms, schedule_hours: scheduleHours,
+            since_days: 3,
+            max_results: 100,
+            minimum_relevance: 60,
+            enabled: true
+          })
+        });
+        elements.watchCity.value = "";
+        elements.watchOther.value = "";
+        elements.provincePicker.querySelectorAll("input").forEach(input => { input.checked = input.value === "Nacional"; });
+        elements.topicPicker.querySelectorAll("input").forEach(input => { input.checked = false; });
+        elements.hourPicker.querySelectorAll("input").forEach(input => { input.checked = false; });
+        updatePickerSummaries();
+        await refreshData();
+        setStatus("Rastreo personalizado creado.", "success");
+      });
+    }
+
+    async function updateWatch(id, enabled) {
+      await withBusy(async () => {
+        await request(`/watches/${id}`, { method: "PATCH", body: JSON.stringify({ enabled }) });
+        await refreshData();
+        setStatus(enabled ? "Monitor activado." : "Monitor pausado.", "success");
+      });
+    }
+
+    async function deleteWatch(id, label) {
+      if (!window.confirm(`¿Eliminar el monitor ${label}?`)) return;
+      await withBusy(async () => {
+        await request(`/watches/${id}`, { method: "DELETE" });
+        await refreshData();
+        setStatus("Monitor eliminado.", "success");
+      });
+    }
+
+    async function updateRecipient(id, enabled) {
+      await withBusy(async () => {
+        await request(`/recipients/${id}`, { method: "PATCH", body: JSON.stringify({ enabled }) });
+        await refreshData();
+        setStatus(enabled ? "Destinatario activado." : "Destinatario pausado.", "success");
+      });
+    }
+
+    async function sendLastRunToRecipient(id) {
+      if (!state.lastRun) { setStatus("Todavía no hay rastreos para enviar.", "error"); return; }
+      await withBusy(async () => {
+        setStatus("Enviando último rastreo a Google Calendar…");
+        await request("/recipients/send-last-run", { method: "POST", body: JSON.stringify({ recipient_id: id }) });
+        setStatus("Rastreo enviado al destinatario.", "success");
+      });
+    }
+
+    async function deleteRecipient(id, email) {
+      if (!window.confirm(`¿Eliminar ${email} de las alertas?`)) return;
+      await withBusy(async () => {
+        await request(`/recipients/${id}`, { method: "DELETE" });
+        await refreshData();
+        setStatus("Destinatario eliminado.", "success");
+      });
+    }
+
+    function updatePickerSummaries() {
+      const provinces = [...elements.provincePicker.querySelectorAll("input:checked")].map(input => input.value);
+      const topics = [...elements.topicPicker.querySelectorAll("input:checked")].map(input => input.value);
+      const hours = [...elements.hourPicker.querySelectorAll("input:checked")].map(input => `${String(input.value).padStart(2,"0")}:00`);
+      elements.provinceSummary.textContent = provinces.length ? (provinces[0] === "Nacional" ? "Todo el país" : provinces.join(", ")) : "Elegí una o varias";
+      elements.topicSummary.textContent = topics.length ? topics.join(", ") : "Elegí uno o varios";
+      elements.watchOther.hidden = !topics.includes("OTRO/S");
+      elements.hourSummary.textContent = hours.length ? `${hours.join(" · ")} (${hours.length}/3)` : "Máximo 3";
+    }
+
+    for (let hour = 0; hour < 24; hour += 1) {
+      const label = document.createElement("label"), input = document.createElement("input");
+      input.type = "checkbox"; input.value = String(hour);
+      label.append(input, document.createTextNode(` ${String(hour).padStart(2,"0")}:00`));
+      elements.hourPicker.append(label);
+      input.addEventListener("change", () => {
+        const checked = elements.hourPicker.querySelectorAll("input:checked");
+        if (checked.length > 3) { input.checked = false; setStatus("El plan beta permite un máximo de tres horarios.", "error"); }
+        updatePickerSummaries();
+      });
+    }
+    elements.topicPicker.querySelectorAll("input").forEach(input => input.addEventListener("change", updatePickerSummaries));
+    elements.provincePicker.querySelectorAll("input").forEach(input => input.addEventListener("change", () => {
+      if (input.checked && input.value === "Nacional") elements.provincePicker.querySelectorAll("input").forEach(other => { if (other !== input) other.checked = false; });
+      if (input.checked && input.value !== "Nacional") elements.provincePicker.querySelector('input[value="Nacional"]').checked = false;
+      updatePickerSummaries();
+    }));
+    updatePickerSummaries();
+
+    elements.sortAlerts.addEventListener("click", () => {
+      state.sortAlertsByMentions = !state.sortAlertsByMentions;
+      elements.sortAlerts.textContent = state.sortAlertsByMentions ? "↓ MENCIONES" : "↓ RELEVANCIA";
+      renderHighAlerts();
+    });
+    elements.clearAlerts.addEventListener("click", () => {
+      state.highAlerts = [];
+      renderHighAlerts();
+    });
+    async function analyzeWithAI() {
+      const btnAI = byId("btn-ai-analyze");
+      const resultBox = byId("ai-result");
+      const aiStatus = byId("ai-status");
+      aiStatus.textContent = "Consultando Claude Haiku…";
+      aiStatus.className = "status";
+      resultBox.style.display = "none";
+      resultBox.textContent = "";
+      btnAI.disabled = true;
+      try {
+        const data = await request("/ai/analyze", { method: "POST", body: JSON.stringify({}) });
+        if (data.ok && data.analysis) {
+          resultBox.textContent = data.analysis;
+          resultBox.style.display = "block";
+          aiStatus.textContent = `Análisis completado · ${data.alerts_analyzed} alertas procesadas`;
+          aiStatus.className = "status success";
+        } else {
+          throw new Error(data.error || "Sin respuesta");
+        }
+      } catch (error) {
+        aiStatus.textContent = `Error: ${error.message}`;
+        aiStatus.className = "status error";
+      } finally {
+        btnAI.disabled = !state.connected || state.busy;
+      }
+    }
+
+    elements.connect.addEventListener("click", connect);
+    elements.runWatchers.addEventListener("click", runWatchers);
+    elements.runQuery.addEventListener("click", runQuery);
+    elements.openReports.addEventListener("click", openReports);
+    byId("btn-ai-analyze").addEventListener("click", analyzeWithAI);
+    elements.watchForm.addEventListener("submit", addWatch);
+    elements.recipientForm.addEventListener("submit", addRecipient);
+    document.querySelectorAll("[data-trend-view]").forEach(button => button.addEventListener("click", () => {
+      document.querySelectorAll("[data-trend-view]").forEach(item => item.classList.toggle("active", item === button));
+      const selected = button.dataset.trendView;
+      elements.trendTimeline.hidden = selected !== "timeline";
+      byId("trend-table-wrap").hidden = selected !== "table";
+    }));
+    setInterval(() => { if (state.connected && !state.busy) refreshData().catch(() => {}); }, 300000);
+
+    const sameOrigin = location.protocol === "http:" || location.protocol === "https:" ? location.origin : "http://192.168.1.100:8765";
+    let storedUrl = localStorage.getItem("osintPcUrl") || "";
+    try {
+      const storedHost = storedUrl ? new URL(storedUrl).hostname : "";
+      const openedFromLan = !["127.0.0.1", "localhost", "::1"].includes(location.hostname);
+      if (openedFromLan && ["127.0.0.1", "localhost", "::1"].includes(storedHost)) storedUrl = "";
+    } catch { storedUrl = ""; }
+    elements.pcUrl.value = storedUrl || sameOrigin;
+    elements.token.value = "";
+    updateControls();
+    connect();
+  </script>
+</body>
+</html>

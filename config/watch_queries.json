@@ -1,0 +1,65 @@
+{
+  "alert_mode": "rss",
+  "max_alert_items": 20,
+  "schedule_mode": "selectable_beta",
+  "allowed_hours": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+  "max_schedule_hours": 3,
+  "watches": [
+    {
+      "id": "legislatura-bonaerense",
+      "label": "Legislatura bonaerense",
+      "enabled": true,
+      "query": "(\"Legislatura bonaerense\" OR \"Senado bonaerense\" OR \"diputados bonaerenses\" OR \"Cámara de Diputados de la Provincia\" OR \"Cámara de Senadores de la Provincia\") AND (proyecto OR sesión OR comisión OR ley OR presupuesto OR votación)",
+      "since_days": 3,
+      "max_results": 100,
+      "minimum_relevance": 60,
+      "provinces": ["Buenos Aires"],
+      "city": "La Plata",
+      "topics": ["Política"],
+      "custom_terms": "",
+      "schedule_hours": [7, 12, 18]
+    },
+    {
+      "id": "congreso-nacional",
+      "label": "Congreso Nacional",
+      "enabled": true,
+      "query": "(\"Congreso Nacional\" OR \"Senado de la Nación\" OR \"Cámara de Diputados de la Nación\" OR HCDN) AND (proyecto OR comisión OR sesión OR ley OR dictamen OR votación OR presupuesto)",
+      "since_days": 3,
+      "max_results": 100,
+      "minimum_relevance": 60,
+      "provinces": ["Nacional"],
+      "city": "",
+      "topics": ["Política", "Economía"],
+      "custom_terms": "",
+      "schedule_hours": [7, 12, 18]
+    },
+    {
+      "id": "salud-politica-presupuesto",
+      "label": "Salud, política y presupuesto",
+      "enabled": true,
+      "query": "(PAMI OR IOMA OR ANMAT OR \"Ministerio de Salud\" OR \"obra social\" OR hospital) AND (presupuesto OR financiamiento OR medicamento OR licitación OR contratación OR resolución OR proyecto OR ley OR cobertura)",
+      "since_days": 3,
+      "max_results": 100,
+      "minimum_relevance": 60,
+      "provinces": ["Nacional"],
+      "city": "",
+      "topics": ["Salud", "Política", "Economía"],
+      "custom_terms": "",
+      "schedule_hours": [8, 13, 19]
+    },
+    {
+      "id": "economia-regulacion",
+      "label": "Economía y regulación",
+      "enabled": true,
+      "query": "(economía OR BCRA OR INDEC OR AFIP OR presupuesto OR inflación OR dólar OR licitación OR contratación OR tarifa OR energía) AND (regulación OR decreto OR resolución OR presupuesto OR impuesto OR financiamiento OR adjudicación OR mercado)",
+      "since_days": 3,
+      "max_results": 100,
+      "minimum_relevance": 60,
+      "provinces": ["Nacional"],
+      "city": "",
+      "topics": ["Economía", "Política"],
+      "custom_terms": "",
+      "schedule_hours": [8, 13, 19]
+    }
+  ]
+}

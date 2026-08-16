@@ -1,0 +1,554 @@
+{
+  "ai": {
+    "enabled": true,
+    "model": "claude-haiku-4-5-20251001",
+    "max_items_per_run": 20,
+    "timeout_seconds": 30
+  },
+  "google_news": {
+    "enabled": true,
+    "language": "es-419",
+    "country": "AR",
+    "edition": "AR:es-419"
+  },
+  "content_policy": {
+    "enabled": true,
+    "require_argentina_context": true,
+    "domestic_domain_suffixes": [
+      ".gob.ar",
+      ".gov.ar",
+      ".edu.ar"
+    ],
+    "argentina_markers": [
+      "Argentina",
+      "República Argentina",
+      "argentino",
+      "argentina",
+      "Congreso de la Nación",
+      "Cámara de Diputados de la Nación",
+      "Senado de la Nación",
+      "Buenos Aires",
+      "bonaerense",
+      "CABA",
+      "Ciudad Autónoma de Buenos Aires",
+      "Capital Federal",
+      "porteño",
+      "porteña",
+      "La Plata",
+      "Saladillo",
+      "Chubut",
+      "Comodoro Rivadavia",
+      "UCR",
+      "LLA",
+      "PRO",
+      "PJ",
+      "Milei",
+      "Kicillof",
+      "Juan Pablo Luque",
+      "Alejandra Lorden",
+      "Vladimir Wuiovich",
+      "Vladimir Woivich",
+      "José Luis Salomón",
+      "Jose Luis Salomon"
+    ],
+    "excluded_terms": [
+      "judicial",
+      "judiciales",
+      "poder judicial",
+      "juicio",
+      "tribunal",
+      "juez",
+      "jueza",
+      "fiscalía",
+      "fiscalia",
+      "imputado",
+      "imputada",
+      "condenado",
+      "condenada",
+      "condena",
+      "prisión",
+      "prision",
+      "cárcel",
+      "carcel",
+      "causa penal",
+      "demanda judicial",
+      "justicia",
+      "penal",
+      "corte suprema",
+      "ministerio público fiscal",
+      "ministerio publico fiscal",
+      "homicidio",
+      "asesinato",
+      "mató",
+      "mato",
+      "veredicto",
+      "juzgaron",
+      "juzgado",
+      "denuncia penal",
+      "Donald Trump",
+      "Estados Unidos",
+      "EEUU",
+      "EE. UU.",
+      "China",
+      "Rusia",
+      "Ucrania",
+      "Israel",
+      "Gaza",
+      "Irán",
+      "Iran",
+      "Líbano",
+      "Libano",
+      "Colombia",
+      "México",
+      "Mexico",
+      "Brasil",
+      "Chile",
+      "Perú",
+      "Peru",
+      "Venezuela",
+      "Ecuador",
+      "Bolivia",
+      "Paraguay",
+      "Uruguay",
+      "Europa",
+      "Unión Europea",
+      "Medio Oriente",
+      "OTAN",
+      "Sheinbaum",
+      "Lula",
+      "Petro",
+      "Zelenski",
+      "Putin",
+      "Hamas",
+      "Hezbollah",
+      "Copa Libertadores",
+      "Copa Sudamericana",
+      "fútbol",
+      "futbol",
+      "deporte",
+      "deportes",
+      "deportivo",
+      "deportiva",
+      "DeporTV",
+      "torneo",
+      "clásico",
+      "clasico",
+      "partido de fútbol",
+      "partido de futbol",
+      "clima",
+      "pronóstico",
+      "pronostico",
+      "temperatura",
+      "lluvia",
+      "meteorología",
+      "meteorologia",
+      "Boca Juniors",
+      "Boca",
+      "River Plate",
+      "River",
+      "Selección Argentina",
+      "seleccion argentina",
+      "ESPN",
+      "tenis",
+      "Gran Hermano",
+      "farándula",
+      "farandula",
+      "espectáculos",
+      "espectaculos",
+      "comprar entradas",
+      "entradas",
+      "show",
+      "recital",
+      "concierto",
+      "Foo Fighters",
+      "Los Nocheros"
+    ]
+  },
+  "official_domain_suffixes": [
+    ".gob.ar",
+    ".gov.ar"
+  ],
+  "high_authority_domains": [
+    "ucrbuenosaires.org.ar",
+    "ucr.org.ar",
+    "pami.org.ar",
+    "ioma.gba.gob.ar",
+    "aysa.com.ar",
+    "ypf.com",
+    "hcdn.gob.ar",
+    "senado.gob.ar",
+    "senado-ba.gov.ar",
+    "hcdiputados-ba.gov.ar"
+  ],
+  "feeds": [
+    {
+      "name": "UCR Buenos Aires",
+      "url": "https://ucrbuenosaires.org.ar/feed/",
+      "enabled": true
+    },
+    {
+      "name": "La Nación",
+      "url": "https://feeds.lanacion.com.ar/lanacion/POL",
+      "enabled": true
+    },
+    {
+      "name": "Clarín",
+      "url": "https://www.clarin.com/rss/ultimo-momento/",
+      "enabled": true
+    },
+    {
+      "name": "Infobae",
+      "url": "https://www.infobae.com/feeds/rss/",
+      "enabled": true
+    },
+    {
+      "name": "Página 12",
+      "url": "https://www.pagina12.com.ar/rss/portada",
+      "enabled": true
+    },
+    {
+      "name": "Perfil",
+      "url": "https://www.perfil.com/feed",
+      "enabled": true
+    },
+    {
+      "name": "Ámbito Financiero",
+      "url": "https://www.ambito.com/rss",
+      "enabled": true
+    },
+    {
+      "name": "TN",
+      "url": "https://tn.com.ar/index.xml",
+      "enabled": true
+    },
+    {
+      "name": "El Cronista",
+      "url": "https://www.cronista.com/files/rss/home.xml",
+      "enabled": true
+    },
+    {
+      "name": "La Política Online",
+      "url": "https://www.lapoliticaonline.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "Urgente24",
+      "url": "https://urgente24.com/feed",
+      "enabled": true
+    },
+    {
+      "name": "El Destape Web",
+      "url": "https://www.eldestapeweb.com/rss/",
+      "enabled": true
+    },
+    {
+      "name": "Chequeado",
+      "url": "https://chequeado.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "Télam",
+      "url": "https://www.telam.com.ar/rss/portada.xml",
+      "enabled": true
+    },
+    {
+      "name": "El Economista Argentina",
+      "url": "https://eleconomista.com.ar/feed/",
+      "enabled": true
+    },
+    {
+      "name": "iProfesional",
+      "url": "https://www.iprofesional.com/rss",
+      "enabled": true
+    },
+    {
+      "name": "Noticias Argentinas",
+      "url": "https://www.noticiasargentinas.com.ar/rss",
+      "enabled": true
+    },
+    {
+      "name": "Grupo La Provincia",
+      "url": "https://grupolaprovincia.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "El Día La Plata",
+      "url": "https://www.eldia.com/rss",
+      "enabled": true
+    },
+    {
+      "name": "La Voz del Interior (Córdoba)",
+      "url": "https://www.lavoz.com.ar/rss/portada.xml",
+      "enabled": true
+    },
+    {
+      "name": "La Capital (Rosario)",
+      "url": "https://www.lacapital.com.ar/rss/portada.xml",
+      "enabled": true
+    },
+    {
+      "name": "El Litoral (Santa Fe)",
+      "url": "https://www.ellitoral.com.ar/rss/portada.xml",
+      "enabled": true
+    },
+    {
+      "name": "El Territorio (Misiones)",
+      "url": "https://www.elterritorio.com.ar/rss",
+      "enabled": true
+    },
+    {
+      "name": "Los Andes (Mendoza)",
+      "url": "https://www.losandes.com.ar/rss/portada.xml",
+      "enabled": true
+    },
+    {
+      "name": "MDZ Online (Mendoza)",
+      "url": "https://www.mdzol.com/rss",
+      "enabled": true
+    },
+    {
+      "name": "Río Negro",
+      "url": "https://www.rionegro.com.ar/rss",
+      "enabled": true
+    },
+    {
+      "name": "Realpolitik",
+      "url": "https://realpolitik.com.ar/feed/",
+      "enabled": true
+    },
+    {
+      "name": "Filo News",
+      "url": "https://www.filo.news/rss",
+      "enabled": true
+    },
+    {
+      "name": "Radio Mitre",
+      "url": "https://radiomitre.cienradios.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "Agencia EFE Argentina",
+      "url": "https://www.efe.com/efe/america/argentina/50000543/rss",
+      "enabled": true
+    }
+  ],
+  "official_monitors": [
+    {
+      "id": "boletin-oficial-nacion",
+      "name": "Boletín Oficial de la República Argentina",
+      "query": "site:boletinoficial.gob.ar (decreto OR resolución OR disposición OR licitación OR contratación OR edicto)",
+      "enabled": true
+    },
+    {
+      "id": "boletines-provinciales-municipales",
+      "name": "Boletines oficiales provinciales y municipales",
+      "query": "(site:boletinoficial.gba.gob.ar OR site:boletinoficial.buenosaires.gob.ar OR site:boletinoficial.cba.gov.ar OR site:santafe.gob.ar/boletinoficial OR site:boe.mendoza.gov.ar OR site:sibom.slyt.gba.gob.ar) (licitación OR decreto OR resolución OR ordenanza)",
+      "enabled": true
+    },
+    {
+      "id": "comprar-contratar",
+      "name": "COMPR.AR y CONTRAT.AR",
+      "query": "(site:comprar.gob.ar OR site:contratar.gob.ar) (licitación OR contratación OR convocatoria OR apertura OR adjudicación)",
+      "enabled": true
+    },
+    {
+      "id": "licitaciones-nacionales",
+      "name": "Licitaciones nacionales",
+      "query": "site:argentina.gob.ar (licitación OR contratación OR concurso de precios OR compulsa OR pliego OR adjudicación)",
+      "enabled": true
+    },
+    {
+      "id": "licitaciones-provinciales",
+      "name": "Licitaciones Buenos Aires y nacional",
+      "query": "(site:gba.gob.ar OR site:buenosaires.gob.ar OR site:sibom.slyt.gba.gob.ar) (licitación OR contratación OR pliego OR adjudicación)",
+      "enabled": true
+    },
+    {
+      "id": "salud-nacion-provincias",
+      "name": "Ministerio de Salud nacional y bonaerense",
+      "query": "(site:argentina.gob.ar/salud OR site:ms.gba.gov.ar OR site:buenosaires.gob.ar/salud) (licitación OR contratación OR compra OR convocatoria OR resolución)",
+      "enabled": true
+    },
+    {
+      "id": "hospitales-obras-sociales",
+      "name": "Hospitales, organismos de salud y obras sociales públicas",
+      "query": "(site:argentina.gob.ar OR site:pami.org.ar OR site:ioma.gba.gob.ar) (hospital OR medicamento OR insumo médico OR obra social) (licitación OR contratación OR compra OR adjudicación)",
+      "enabled": true
+    },
+    {
+      "id": "ministerios-universidades-empresas-estatales",
+      "name": "Ministerios, universidades y empresas estatales",
+      "query": "(site:argentina.gob.ar OR site:edu.ar OR site:aysa.com.ar OR site:ypf.com) (licitación OR contratación OR convocatoria OR pliego OR adjudicación)",
+      "enabled": true
+    },
+    {
+      "id": "congreso-legislaturas",
+      "name": "Congreso nacional y legislaturas provinciales",
+      "query": "(site:senado.gob.ar OR site:hcdn.gob.ar OR site:senado-ba.gov.ar OR site:hcdiputados-ba.gov.ar OR site:legislaturasconectadas.gob.ar) (comisión OR sesión OR proyecto OR audiencia OR temario OR agenda)",
+      "enabled": true
+    },
+    {
+      "id": "poder-judicial-control",
+      "name": "Poder Judicial y organismos de control",
+      "query": "(site:csjn.gov.ar OR site:pjn.gov.ar OR site:mpf.gob.ar OR site:agn.gob.ar OR site:argentina.gob.ar/sigen OR site:argentina.gob.ar/anticorrupcion) (resolución OR acordada OR auditoría OR investigación OR informe OR licitación)",
+      "enabled": false
+    }
+  ],
+  "agenda_pages": [
+    {
+      "name": "Agenda de Comisiones del Senado",
+      "url": "https://www.senado.gob.ar/parlamentario/comisiones/?active=agenda",
+      "enabled": true
+    },
+    {
+      "name": "Agenda de Comisiones de Diputados",
+      "url": "https://www.hcdn.gob.ar/comisiones/agenda/",
+      "enabled": true
+    }
+  ],
+  "official_domains": [
+    "ucrbuenosaires.org.ar",
+    "ucr.org.ar",
+    "argentina.gob.ar",
+    "gba.gob.ar",
+    "boletinoficial.gob.ar",
+    "buenosaires.gob.ar",
+    "cordoba.gob.ar",
+    "santafe.gob.ar",
+    "mendoza.gov.ar",
+    "tucuman.gob.ar",
+    "salta.gob.ar",
+    "jujuy.gob.ar",
+    "catamarca.gob.ar",
+    "larioja.gob.ar",
+    "sisanjuan.gob.ar",
+    "sanluis.gov.ar",
+    "lapampa.gob.ar",
+    "neuquen.gov.ar",
+    "rionegro.gob.ar",
+    "chubut.gob.ar",
+    "santacruz.gob.ar",
+    "tierradelfuego.gob.ar",
+    "portal.entrerios.gob.ar",
+    "misiones.gob.ar",
+    "corrientes.gob.ar",
+    "formosa.gob.ar",
+    "chaco.gov.ar",
+    "santiagodestereo.gob.ar",
+    "boletinoficial.buenosaires.gob.ar",
+    "boletinoficial.cordoba.gob.ar",
+    "boletinoficial.santafe.gob.ar",
+    "boletinoficial.gba.gob.ar",
+    "boletinoficial.cba.gov.ar",
+    "boe.mendoza.gov.ar",
+    "sibom.slyt.gba.gob.ar",
+    "comprar.gob.ar",
+    "contratar.gob.ar",
+    "ms.gba.gov.ar",
+    "salud.cordoba.gob.ar",
+    "pami.org.ar",
+    "ioma.gba.gob.ar",
+    "aysa.com.ar",
+    "ypf.com",
+    "mpf.gob.ar",
+    "agn.gob.ar",
+    "pjn.gov.ar",
+    "csjn.gov.ar",
+    "hcdn.gob.ar",
+    "parlamentaria.hcdn.gob.ar",
+    "senado.gob.ar",
+    "senado-ba.gov.ar",
+    "hcdiputados-ba.gov.ar",
+    "afip.gob.ar",
+    "indec.gob.ar",
+    "bcra.gob.ar",
+    "aaip.gob.ar",
+    "infoleg.gob.ar",
+    "jne.gob.ar",
+    "resultados.gob.ar",
+    "transparencia.gob.ar",
+    "datos.jus.gob.ar",
+    "municipioazul.gob.ar",
+    "bolivargba.gob.ar",
+    "olavarria.gob.ar",
+    "roqueperez.gob.ar",
+    "saladillo.gob.ar",
+    "25demayo.gob.ar",
+    "tapalque.gob.ar",
+    "generalalvear.gob.ar",
+    "lanacion.com.ar",
+    "clarin.com",
+    "perfil.com",
+    "infobae.com",
+    "pagina12.com.ar",
+    "cronista.com",
+    "tn.com.ar",
+    "ambito.com",
+    "cnnespanol.cnn.com",
+    "telediarios.com.ar",
+    "lapoliticaonline.com",
+    "politicargentina.com",
+    "realpolitik.com.ar",
+    "laroscadigital.com.ar",
+    "urgente24.com",
+    "eldestapeweb.com",
+    "izquierdaweb.com",
+    "laprensa.com.ar",
+    "derechadiario.com.ar",
+    "tiempoar.com.ar",
+    "eleconomista.com.ar",
+    "iprofesional.com",
+    "baenegocios.com",
+    "bloomberg.com",
+    "reuters.com",
+    "chequeado.com",
+    "filo.news",
+    "revistacrisis.com.ar",
+    "andigedigital.com.ar",
+    "observatoriopolitico.org.ar",
+    "grupolaprovincia.com",
+    "eldia.com",
+    "diariodemocracia.com",
+    "elciudadanoweb.com",
+    "lacapital.com.ar",
+    "losandes.com.ar",
+    "mdzol.com",
+    "lavoz.com.ar",
+    "ellitoral.com.ar",
+    "rosarioplus.com",
+    "diariodecuyo.com.ar",
+    "sitioandino.com.ar",
+    "sanjuannoticias.com.ar",
+    "informatesalta.com.ar",
+    "elquintosol.com.ar",
+    "jujuyadatos.com.ar",
+    "misiones.online",
+    "elterritorio.com.ar",
+    "corrientes24.com.ar",
+    "misionesonline.net",
+    "laarena.com.ar",
+    "laopinionaustral.com.ar",
+    "santacruzdigital.com",
+    "radiomitre.com.ar",
+    "radiocontinental.com.ar",
+    "fm100.com.ar",
+    "radiodelaplata.com.ar",
+    "telam.com.ar",
+    "noticiasargentinas.com.ar",
+    "prensa-latina.cu",
+    "rionegro.com.ar",
+    "flacso.org.ar",
+    "cippec.org",
+    "fundacionkadus.org",
+    "diputadosalta.gob.ar",
+    "legislaturacba.gob.ar",
+    "senadosantafe.gob.ar",
+    "legislaturadelchubut.gob.ar",
+    "legislaturasconectadas.gob.ar"
+  ],
+  "timeout_seconds": 15,
+  "max_discovery_queries": 12,
+  "max_workers": 6,
+  "max_per_job": 100,
+  "cors_origin": ""
+}

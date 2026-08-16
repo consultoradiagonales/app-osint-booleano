@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rastreador-osint-booleano"
+version = "1.3.8"
+description = "Rastreador OSINT-BOOLEANO deterministico, local, sin IA ni APIs pagas"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+boolean-osint = "bridge.cli:main"
+boolean-osint-server = "bridge.server:main"
+osint-booleano = "bridge.cli:main"
+osint-booleano-server = "bridge.server:main"
+osint-booleano-watch = "bridge.watcher:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bridge*"]

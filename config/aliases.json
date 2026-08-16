@@ -1,0 +1,47 @@
+{
+  "UCR": [
+    "Union Civica Radical",
+    "radicalismo",
+    "radicales"
+  ],
+  "convencion": [
+    "Convencion Provincial",
+    "sesion constitutiva",
+    "convencionales"
+  ],
+  "Buenos Aires": [
+    "bonaerense",
+    "PBA",
+    "Provincia de Buenos Aires"
+  ],
+  "autoridades": [
+    "mesa ejecutiva",
+    "comite provincia",
+    "junta electoral"
+  ],
+  "Nacion": [
+    "gobierno nacional",
+    "Casa Rosada",
+    "Jefatura de Gabinete",
+    "Ministerio nacional",
+    "Secretaria de Estado",
+    "Presidencia de la Nacion",
+    "poder ejecutivo nacional",
+    "Casa de Gobierno",
+    "gabinete nacional"
+  ],
+  "Nacional": [
+    "gobierno nacional",
+    "Casa Rosada",
+    "Jefatura de Gabinete",
+    "Ministerio nacional",
+    "Secretaria de Estado",
+    "Presidencia de la Nacion",
+    "poder ejecutivo nacional",
+    "Casa de Gobierno",
+    "gabinete nacional",
+    "Congreso de la Nacion",
+    "Camara de Diputados de la Nacion",
+    "Senado de la Nacion"
+  ]
+}

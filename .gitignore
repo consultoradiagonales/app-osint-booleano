@@ -1,0 +1,35 @@
+# Python and local builds
+.venv/
+__pycache__/
+*.py[cod]
+build/
+dist/
+boolean_osint_bridge/
+tools/
+*.exe
+*.zip
+
+# Runtime state, reports and logs
+data/*.sqlite3
+data/*.log
+data/*auth*.txt
+data/*auth*.log
+data/*token*
+reports/
+alerts/
+*.log
+
+# Secrets and machine-specific files
+.env
+.env.*
+CLAVE_ACCESO.txt
+ACCESO_MOVIL.txt
+INSTALL_LOCATION.txt
+config/client_secret*.json
+*.pem
+*.key
+
+# OS/editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
