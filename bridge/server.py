@@ -35,10 +35,10 @@ PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 ALLOWED_TOPICS = {"Política", "Economía", "Educación", "Cultura", "Salud", "OTRO/S"}
 
 
-def _current_run_html(run: dict[str, Any]) -> str:
+def _current_run_html(run: dict[str, Any], selected_results: list[dict[str, Any]] | None = None) -> str:
     """Arma el correo desde la misma corrida que está viendo el usuario."""
     cards: list[str] = []
-    results = list(run.get("results", []))
+    results = list(selected_results if selected_results is not None else run.get("results", []))
     for item in results:
         title = html.escape(str(item.get("title", "Sin título")))
         source = html.escape(str(item.get("source", "Fuente pública")))
@@ -772,14 +772,27 @@ def make_handler(app: BridgeApp):
                     if not run:
                         self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "No se encontró el rastreo seleccionado"})
                         return
-                    if not run.get("results"):
+                    run_results = list(run.get("results", []))
+                    if not run_results:
                         self._json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "El rastreo seleccionado no tiene notas para enviar"})
+                        return
+                    selected_urls = {
+                        str(value).strip()
+                        for value in payload.get("selected_urls", [])
+                        if isinstance(value, str) and str(value).strip()
+                    }
+                    selected_results = (
+                        [item for item in run_results if str(item.get("url", "")).strip() in selected_urls]
+                        if selected_urls else run_results
+                    )
+                    if not selected_results:
+                        self._json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "No se encontraron los resultados seleccionados en este rastreo"})
                         return
                     recipients = [item["email"] for item in app.recipients.list(enabled_only=True)]
                     if not recipients:
                         self._json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "No hay destinatarios activos"})
                         return
-                    html_body = _current_run_html(run)
+                    html_body = _current_run_html(run, selected_results)
                     signature = f"current-run:{run_id}:{hashlib.sha256(html_body.encode('utf-8')).hexdigest()}:{','.join(sorted(recipients))}"
                     delivery_state = Path(app.reports_dir) / "current_run_delivery.json"
                     try:

@@ -84,7 +84,7 @@
 
     <section class="card">
       <div class="section-head"><div><p class="kicker">TEMAS RASTREADOS</p><h2>Resultados del rastreo</h2></div><div style="display:flex;gap:8px;align-items:center"><b class="counter" id="high-alert-count">0 artículos</b><button class="secondary" id="sort-alerts" type="button" style="min-height:32px;padding:0 12px;font-size:10px">↓ FECHA</button><button class="secondary" id="clear-alerts" type="button" style="min-height:32px;padding:0 12px;font-size:10px;color:var(--bad,#C1432A);border-color:var(--bad,#C1432A)">✕ LIMPIAR</button></div></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button class="secondary protected" id="send-tracked-mail" type="button" disabled>Enviar este rastreo por mail</button><span class="delivery-status" id="tracked-mail-status"></span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button class="secondary" id="select-all-alerts" type="button">Seleccionar todos</button><button class="secondary" id="clear-alert-selection" type="button">Quitar selección</button><button class="secondary protected" id="send-tracked-mail" type="button" disabled>Enviar seleccionados por mail</button><span class="delivery-status" id="tracked-mail-status"></span></div>
       <div class="high-alerts" id="high-alerts"><p class="empty">Conectá la PC para ver los resultados.</p></div>
     </section>
 
@@ -106,7 +106,7 @@
 
   <script>
     "use strict";
-    const state = { connected: false, busy: false, watches: [], recipients: [], highAlerts: [], runs: [], reports: null, lastRun: null, alertSort: "date" };
+    const state = { connected: false, busy: false, watches: [], recipients: [], highAlerts: [], selectedAlertUrls: new Set(), runs: [], reports: null, lastRun: null, alertSort: "date" };
     const byId = id => document.getElementById(id);
     const elements = {
       pcUrl: byId("pc-url"), token: byId("token"), connect: byId("connect"), status: byId("status"),
@@ -116,7 +116,7 @@
       topicPicker: byId("topic-picker"), topicSummary: byId("topic-summary"), hourPicker: byId("hour-picker"), hourSummary: byId("hour-summary"), watchCount: byId("watch-count"), watches: byId("watches"),
       recipientForm: byId("recipient-form"), email: byId("email"),
       recipientCount: byId("recipient-count"), recipients: byId("recipients"), deliveryProducts: byId("delivery-products"), deliveryRecipients: byId("delivery-recipients"), sendProduct: byId("send-product"), deliveryStatus: byId("delivery-status"),
-      highAlerts: byId("high-alerts"), highAlertCount: byId("high-alert-count"), sortAlerts: byId("sort-alerts"), clearAlerts: byId("clear-alerts"), sendTrackedMail: byId("send-tracked-mail"), trackedMailStatus: byId("tracked-mail-status"),
+      highAlerts: byId("high-alerts"), highAlertCount: byId("high-alert-count"), sortAlerts: byId("sort-alerts"), clearAlerts: byId("clear-alerts"), selectAllAlerts: byId("select-all-alerts"), clearAlertSelection: byId("clear-alert-selection"), sendTrackedMail: byId("send-tracked-mail"), trackedMailStatus: byId("tracked-mail-status"),
       openReports: byId("open-reports"), latestReport: byId("latest-report"), reportPath: byId("report-path")
     };
 
@@ -247,8 +247,14 @@
     function renderHighAlerts() {
       elements.highAlerts.replaceChildren();
       const all = state.highAlerts;
+      const selectionKey = item => String(item.url || `${item.title || ""}|${item.published_at || ""}`);
+      const updateSelectionButton = () => {
+        const selected = [...state.selectedAlertUrls].filter(key => all.some(item => selectionKey(item) === key)).length;
+        elements.sendTrackedMail.textContent = selected ? `Enviar ${selected} seleccionado${selected === 1 ? "" : "s"} por mail` : "Seleccioná resultados para enviar";
+      };
       elements.highAlertCount.textContent = `${all.length} artículo${all.length === 1 ? "" : "s"}`;
       if (!all.length) {
+        elements.sendTrackedMail.textContent = "Enviar seleccionados por mail";
         elements.highAlerts.append(createText("p", "Sin resultados hoy. Ejecutá un rastreo para ver novedades.", "empty"));
         return;
       }
@@ -290,6 +296,18 @@
         for (const item of sorted) {
           const presentation = alertPresentation(item);
           const card = document.createElement("article"); card.className = `high-alert alert-${presentation.className}`;
+          const selectRow = document.createElement("label");
+          selectRow.style.cssText = "display:flex;align-items:center;gap:7px;margin:0 0 10px;color:var(--navy,#002B54);font:800 11px ui-monospace,monospace;letter-spacing:.04em;cursor:pointer";
+          const selector = document.createElement("input");
+          selector.type = "checkbox"; selector.checked = state.selectedAlertUrls.has(selectionKey(item));
+          selector.setAttribute("aria-label", `Seleccionar ${item.title || "resultado"}`);
+          selector.addEventListener("change", () => {
+            const key = selectionKey(item);
+            if (selector.checked) state.selectedAlertUrls.add(key); else state.selectedAlertUrls.delete(key);
+            updateSelectionButton();
+          });
+          selectRow.append(selector, document.createTextNode(" Incluir en el mail"));
+          card.append(selectRow);
           const mentionsBadge = `${item.mentions || 1} mención${(item.mentions || 1) === 1 ? "" : "es"}`;
           const pills = document.createElement("div"); pills.className = "alert-pills";
           pills.append(createText("span", `${presentation.label} · ${presentation.score}/100`, "alert-pill level"));
@@ -309,6 +327,7 @@
         }
         elements.highAlerts.append(section);
       }
+      updateSelectionButton();
     }
 
     function renderMentionChart() {
@@ -487,6 +506,7 @@
         state.runs = [result, ...state.runs.filter(item => item.run_id !== result.run_id)].slice(0, 50);
         elements.lastCount.textContent = result.total_matched ?? 0;
         state.highAlerts = Array.isArray(result.results) ? result.results : [];
+        state.selectedAlertUrls = new Set(state.highAlerts.map(item => String(item.url || `${item.title || ""}|${item.published_at || ""}`)));
         renderResults(); renderHighAlerts();
         setStatus(`Corrida completa: ${result.total_matched ?? 0} coincidencia(s).`, "success");
       });
@@ -635,6 +655,15 @@
     });
     elements.clearAlerts.addEventListener("click", () => {
       state.highAlerts = [];
+      state.selectedAlertUrls.clear();
+      renderHighAlerts();
+    });
+    elements.selectAllAlerts.addEventListener("click", () => {
+      state.selectedAlertUrls = new Set(state.highAlerts.map(item => String(item.url || `${item.title || ""}|${item.published_at || ""}`)));
+      renderHighAlerts();
+    });
+    elements.clearAlertSelection.addEventListener("click", () => {
+      state.selectedAlertUrls.clear();
       renderHighAlerts();
     });
     async function analyzeWithAI() {
@@ -690,7 +719,9 @@
       elements.trackedMailStatus.className = "delivery-status";
       try {
         if (!state.lastRun || !state.lastRun.run_id) throw new Error("Primero ejecutá el rastreo que querés enviar.");
-        const data = await request("/reports/send-current-run", { method: "POST", body: JSON.stringify({run_id: state.lastRun.run_id}) });
+        const selected_urls = [...state.selectedAlertUrls];
+        if (!selected_urls.length) throw new Error("Seleccioná al menos un resultado.");
+        const data = await request("/reports/send-current-run", { method: "POST", body: JSON.stringify({run_id: state.lastRun.run_id, selected_urls}) });
         if (!data.ok) throw new Error(data.error || "No se pudo enviar");
         const sent = (data.deliveries || []).filter(item => item.status === "sent").length;
         elements.trackedMailStatus.textContent = `✓ Cable HTML enviado una vez a ${sent} cliente${sent === 1 ? "" : "s"}.`;
